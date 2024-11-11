@@ -15,8 +15,8 @@ function App() {
       <Routes>
         <Route path='/' element={isUserAuthorized ? <HomeLayout /> : <Auth />}>
           <Route path='/' element={<Home />}/>
-          <Route path='/myposts' element={<MyPosts />}/>
-          <Route path='/myaccount' element={<MyAccount />}/>
+          {/* <Route path='/myposts' element={<MyPosts />}/> */}
+          {/* <Route path='/myaccount' element={<MyAccount />}/> */}
         </Route>
       </Routes>
     </BrowserRouter>

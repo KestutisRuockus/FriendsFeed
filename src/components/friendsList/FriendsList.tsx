@@ -2,7 +2,7 @@ import Friend from "./Friend"
 
 const FriendsList = () => {
   return (
-    <div className="w-1/4 px-6 py-4 flex flex-col bg-bgColor bg-opacity-50">
+    <div className="sm:w-1/4 px-6 py-4 flex flex-col bg-bgColorSecondary">
       <h1 className="font-bold text-xl text-primary">Friends List</h1>
     <div className="flex items-center border-2 border-primary rounded-lg overflow-hidden my-2">
       <input 

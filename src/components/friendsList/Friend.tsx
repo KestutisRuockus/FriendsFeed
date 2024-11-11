@@ -1,9 +1,15 @@
 const Friend = () => {
   return (
     <div 
-        className="text-primary font-semibold cursor-pointer rounded-lg hover:bg-bgColor hover:bg-opacity-80 px-2 py-1 transition-all duration-300 ease-in-out"
+      className="flex items-center gap-3 rounded-lg hover:bg-bgColor hover:bg-opacity-80 transition-all duration-300 ease-in-out px-2"
     >
+      <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+      <i className="fa-solid fa-user rounded-full">{/* <img src="" alt="" /> */}</i>
+      <p
+        className="text-primary font-semibold cursor-pointer py-1 "
+      >
         Mark Holston
+      </p>
     </div>
   )
 }
