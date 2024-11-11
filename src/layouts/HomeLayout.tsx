@@ -1,12 +1,17 @@
+import { Outlet } from 'react-router-dom'
 import Navbar from '../components/navbar/Navbar'
+import Footer from '../components/footer/Footer'
+import FriendsList from '../components/friendsList/FriendsList'
 
 const HomeLayout = () => {
   return (
   <>
-  <header>
-    <h1>Friends Feed</h1>
-  </header>
-  <Navbar />
+    <Navbar />
+    <div className='flex'>
+      <Outlet />
+      <FriendsList />
+    </div>
+    <Footer />
   </>
   )
 }

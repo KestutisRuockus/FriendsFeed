@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         bgColor: '#d2e5d0' ,
-        borderColor: '#dcbaa9' ,
+        hover: '#dcbaa9' ,
         primary: '#65463e' ,
         secondary: '#aad6a0' 
       }

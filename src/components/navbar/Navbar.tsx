@@ -6,14 +6,14 @@ import { useState } from 'react';
 
 const Navbar = () => {
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const createNavLink = (link: NavLinksProps, index: number) => {
     return (
       <NavLink 
         key={index} 
         to={link.path}
-        className={`text-primary font-bold text-xl px-8 py-1 rounded-2xl hover:text-borderColor hover:scale-125 
+        className={`text-primary font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
           transition-all duration-500 ease-in-out`} 
       >
         {link.name}
