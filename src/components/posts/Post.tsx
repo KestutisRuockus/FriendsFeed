@@ -1,12 +1,13 @@
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import EmojiPicker from 'emoji-picker-react';
+import Comment from "./Comment";
 
 const Post = () => {
     const [showMoreContent, setShowMoreContent] = useState<boolean>(false);
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
-    const contentRef = useRef<HTMLDivElement>(null);
     const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
     const [commentInput, setCommentInput] = useState<string>('');
+    const contentRef = useRef<HTMLDivElement>(null);
 
     const handleShowMoreContentState = () => setShowMoreContent(!showMoreContent);
 
@@ -28,16 +29,6 @@ const Post = () => {
           setIsOverflowing(contentRef.current.scrollHeight > 60);
         }
       }, []);
-
-      const getComments = () => (
-        <div className="w-full bg-bgColorSecondary px-4 py-2 rounded-lg my-2">
-            <div className="flex items-center gap-2">
-                <i className="fa-solid fa-user rounded-full text-xs">{/* <img src="" alt="" /> */}</i>
-                <p className="text-sm font-semibold text-primary">Ben Benson</p>
-            </div>
-            <div>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil architecto unde exercitationem earum? Autem dolorum inventore nam quos provident libero.</div>
-        </div>
-      )
 
   return (
     <div
@@ -73,9 +64,9 @@ const Post = () => {
             <div
                 ref={contentRef}
                 className={`overflow-hidden transition-max-height duration-500 ease-in-out ${showMoreContent ? 'max-h-[300px] overflow-y-scroll' : 'max-h-[4.5rem]' }`}
-                >
+            >
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem inventore veritatis debitis veniam iusto totam quis corrupti distinctio eaque in vitae quia fugit quasi laborum officia qui ullam vel rerum voluptate animi, accusantium consequuntur? Corporis quas laudantium ab, ullam omnis, dolorum qui consequuntur labore odio accusantium modi ut, repudiandae rerum deserunt! Adipisci dignissimos accusamus eum provident dolor cum velit, aspernatur consequatur, praesentium exercitationem odio tenetur ex qui consequuntur laborum veniam, incidunt ullam blanditiis molestiae sapiente! Qui, iste repudiandae quibusdam laboriosam, sint totam ut, officiis itaque ipsa ducimus ex ea eaque iusto! Dolorem et quas odio alias! Est porro ea explicabo, blanditiis deleniti consequuntur maxime veniam commodi reiciendis omnis possimus atque consequatur repellendus aliquid libero adipisci perferendis aspernatur a saepe nesciunt quas nihil. Laborum veritatis quaerat officiis recusandae odit praesentium ullam natus? Ipsam unde magni alias libero fuga, labore reiciendis incidunt fugit enim debitis quod rem natus harum itaque assumenda commodi molestiae non ad? Doloremque laudantium repudiandae tenetur iure? Vero, repellendus unde illum ipsa, et cupiditate autem eius quisquam velit ut officia, accusamus ipsam repudiandae illo. Dolor, cumque autem voluptatum adipisci ipsam labore molestias nam explicabo voluptatibus tenetur corrupti quos ratione placeat eius sequi iure quae rem minus ullam cum incidunt perspiciatis praesentium ad quod. Explicabo officia iusto laboriosam voluptatibus provident, pariatur consequuntur deleniti eveniet adipisci accusamus facilis porro unde hic quia aspernatur minima veritatis alias! Consectetur, minus tenetur atque, libero ratione necessitatibus assumenda aliquid pariatur illo omnis optio harum consequatur temporibus nulla nostrum quas quod facere numquam illum totam voluptate dolorum laborum nam deleniti! Natus cumque eius asperiores in consequatur libero aliquid? Doloremque laborum inventore atque id earum itaque, eveniet dolore et in, ab aspernatur deleniti qui quis! Distinctio debitis voluptatum quidem provident. Nesciunt, laudantium! Corrupti placeat voluptatum ullam repellat magnam facilis fugit deleniti minima nostrum, maxime laborum optio quasi.
-                </div>
+            </div>
             {isOverflowing &&(
             <div
                 onClick={handleShowMoreContentState}
@@ -95,8 +86,7 @@ const Post = () => {
                 </div>
             </div>
             <div className="w-full">
-                {getComments()}
-                {getComments()}
+                <Comment />
                 <div className="flex w-full mt-2">
                     <input 
                         onKeyDown={(e: {key: string}) => {

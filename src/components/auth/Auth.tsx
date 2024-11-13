@@ -1,26 +1,17 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Logo from "../../assets/Logo.png";
 import SignUp from "./SignUp";
 import LogIn from "./LogIn";
+import useScreenWidth from "../../hooks/useScreenWidth";
 
 const Auth = () => {
 
+  const screenWidth = useScreenWidth();
   const [isRegistrationComponent, setIsRegistrationComponent] = useState<boolean>(false);
-  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    }
-
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-
-  }, [])
+  
 
   const formStructure = () => {
-    if(windowWidth >= 768) {
+    if(screenWidth >= 768) {
       return (
         <>
           <SignUp setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent}/>
@@ -40,7 +31,7 @@ const Auth = () => {
         <div 
           className={`md:visible hidden w-1/2 h-full md:flex justify-center items-center bg-primary absolute transition-transform duration-300 ease-in-out 
             ${isRegistrationComponent ? 'translate-x-full rounded-r-xl' : 'translate-x-0 rounded-l-xl'}
-            ${windowWidth < 768 ? 'hidden' : 'block'}`}
+            ${screenWidth < 768 ? 'hidden' : 'block'}`}
           style={{ left: 0, }}
         >
           <img className="lg:w-1/2 w-2/3"  src={Logo} alt="logo" />
