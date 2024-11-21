@@ -4,7 +4,6 @@ import useScreenWidth from "../../hooks/useScreenWidth"
 
 const FriendsList = () => {
   const screenWidth = useScreenWidth();
-  console.log(screenWidth);
 
   const [collapsedFriendList, setCollapsedFriendList] = useState<boolean>(false);
 

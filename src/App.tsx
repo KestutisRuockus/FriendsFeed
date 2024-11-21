@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Auth from './components/auth/Auth';
 import HomeLayout from './layouts/HomeLayout';
 import Home from './pages/Home';
+import Profile from './pages/Profile';
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path='/' element={isUserAuthorized ? <HomeLayout /> : <Auth />}>
           <Route path='/' element={<Home />}/>
+          <Route path='/profile' element={<Profile />}/>
         </Route>
       </Routes>
     </BrowserRouter>
