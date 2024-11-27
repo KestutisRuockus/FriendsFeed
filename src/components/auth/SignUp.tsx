@@ -1,21 +1,71 @@
 import React, { useState } from 'react';
-import { useForm } from './useForm';
-import { SignUpProps } from './types';
+import { useRegisterForm } from './useRegisterForm';
+import { FormStateProps, SignUpProps } from './types';
 import Button from './Button';
 import ErrorMessage from "./ErrorMessage";
+import { auth, db } from '../../firebase/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpProps) => {
-  const { formState, handleInputsChange, resetForm } = useForm();
+  const { formState, handleInputsChange, resetForm } = useRegisterForm();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const validateInputs = () => {
+    const validations: {
+      field: keyof FormStateProps,
+      error: string,
+      condition?: () => boolean,
+    }[] = [
+      {field: 'fullName', error: 'Name is required'},
+      {field: 'email', error: 'Email is required'},
+      {field: 'password', error: 'Password is required'},
+      {field: 'confirmPassword', error: 'Passwords does not match', condition: () => formState.password === formState.confirmPassword},
+      {field: 'birthdate', error: 'Birthdate is required'},
+      {field: 'location', error: 'Location is required'},
+      {field: 'gender', error: 'Gender is required'},
+    ]
 
-  const handleFormSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+    for(const {field, error, condition} of validations) {
+      if(!formState[field] || (condition && !condition())){
+        setErrorMessage(error);
+        return false;
+      }
+    }
     console.log(formState);
-    setIsRegistrationComponent(false);
-    resetForm();
-    setErrorMessage(null);
-  };
+    return true;
+  }
+
+  const handleRegister = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const validatedNewUser = validateInputs();
+
+    if(validatedNewUser){
+      try {
+        await createUserWithEmailAndPassword(auth, formState.email, formState.password);
+        const user = auth.currentUser;
+        if(user){
+          await setDoc(doc(db, "users", user.uid), {
+            name: formState.fullName,
+            email: formState.email,
+            birthdate: formState.birthdate,
+            location: formState.location,
+            gender: formState.gender,
+          });
+        }
+        console.log("User Registered Successfully!!");
+        setErrorMessage("User Registered Successfully!!");
+        resetForm();
+      } catch (error) {
+        if(error instanceof Error) {
+          console.log(error.message);
+          setErrorMessage(error.message);
+        } else {
+          console.log('Unknown error occurred');
+        }
+      }
+    }
+  }
 
   const handleTransitionToLogInComponent = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -87,7 +137,7 @@ const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpP
                 <input 
                   type="radio" 
                   name="gender"
-                  value='male'
+                  value='Male'
                   checked={formState.gender ==='male'}
                   onChange={handleInputsChange}
                 />
@@ -97,7 +147,7 @@ const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpP
                 <input 
                   type="radio" 
                   name="gender"
-                  value='female'
+                  value='Female'
                   checked={formState.gender ==='female'}
                   onChange={handleInputsChange}
                 />
@@ -107,7 +157,7 @@ const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpP
                 <input 
                   type="radio" 
                   name="gender"
-                  value='other'
+                  value='Other'
                   checked={formState.gender ==='other'}
                   onChange={handleInputsChange}
                 />
@@ -116,7 +166,7 @@ const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpP
               
             </div>
             <div className="flex flex-wrap gap-4 lg:mt-0 mt-6 m-auto px-10">
-              <Button text='Create new account' fn={handleFormSubmit}/>
+              <Button text='Create new account' fn={handleRegister}/>
               <Button text='Log In To Existing' fn={handleTransitionToLogInComponent}/>
             </div>
             <ErrorMessage message={errorMessage}/>

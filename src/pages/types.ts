@@ -6,9 +6,9 @@ export type PostProps = {
 
 export type ProfileProps = {
     name: string;
-    email: string;
+    email: string | null | undefined;
     birthdate: string;
     location: string;
     gender: string;
-    posts: PostProps[]
+    posts?: PostProps[]
 }

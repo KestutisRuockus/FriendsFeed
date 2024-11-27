@@ -3,8 +3,9 @@ import Logo from "../../assets/Logo.png";
 import SignUp from "./SignUp";
 import LogIn from "./LogIn";
 import useScreenWidth from "../../hooks/useScreenWidth";
+import { AuthProps } from "./types";
 
-const Auth = () => {
+const Auth = ({setIsUserAuthorized }: AuthProps) => {
 
   const screenWidth = useScreenWidth();
   const [isRegistrationComponent, setIsRegistrationComponent] = useState<boolean>(false);
@@ -15,14 +16,14 @@ const Auth = () => {
       return (
         <>
           <SignUp setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent}/>
-          <LogIn setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent}/>
+          <LogIn setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent} setIsUserAuthorized={setIsUserAuthorized}/>
         </>
       )
     } else {
       return isRegistrationComponent ? (
         <SignUp setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent}/>
       ) : (
-        <LogIn setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent}/>
+        <LogIn setIsRegistrationComponent={setIsRegistrationComponent} isRegistrationComponent={isRegistrationComponent} setIsUserAuthorized={setIsUserAuthorized}/>
       );
     }
   }

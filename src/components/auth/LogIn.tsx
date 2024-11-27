@@ -2,18 +2,33 @@ import { SetStateAction, useState } from "react";
 import { LogInProps } from './types';
 import Button from './Button';
 import ErrorMessage from "./ErrorMessage";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig";
 
-const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent }: LogInProps) => {
+const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent, setIsUserAuthorized }: LogInProps) => {
 
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        console.log(email, password);
-        setPassword('');
-        setErrorMessage(null);
+    const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+
+      try {
+        const userExist = await signInWithEmailAndPassword(auth, email, password);
+        console.log('User logged in successfully');
+        if(userExist) {
+          setIsUserAuthorized(true);
+          localStorage.setItem('isAuth', JSON.stringify(true))
+        }
+      } catch (error) {
+        if(error instanceof Error) {
+          console.log(error.message);
+          setErrorMessage(error.message);
+        } else {
+          console.log('Unknown error occurred');
+        }
+      }
     }
 
     const handleTransitionToSignUpComponent = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -22,9 +37,7 @@ const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent }: LogInPro
       setErrorMessage(null);
     }
 
-    const handleEmail = (e: { target: { value: SetStateAction<string> } }) => {
-      setEmail(e.target.value); 
-    }
+    const handleEmail = (e: { target: { value: SetStateAction<string> } }) => setEmail(e.target.value); 
 
     const handlePassword = (e: { target: { value: SetStateAction<string> } }) => setPassword(e.target.value);
 
@@ -54,7 +67,7 @@ const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent }: LogInPro
             />
             
             <div className="flex flex-wrap gap-4 m-auto lg:mt-0 mt-6 px-10">
-              <Button text='Log In' fn={handleSubmit}/>
+              <Button text='Log In' fn={handleLogin}/>
               <Button text='Create new account' fn={handleTransitionToSignUpComponent}/>
             </div>
             <ErrorMessage message={errorMessage}/>

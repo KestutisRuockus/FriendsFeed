@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 import { formReducer, initialize } from './formReducer';
 
-export const useForm = () => {
+export const useRegisterForm = () => {
   const [formState, dispatch] = useReducer(formReducer, initialize);
 
   const handleInputsChange = (e: React.ChangeEvent<HTMLInputElement>) => {

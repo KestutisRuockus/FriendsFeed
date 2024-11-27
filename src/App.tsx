@@ -7,13 +7,13 @@ import Profile from './pages/Profile';
 
 function App() {
 
-  const [isUserAuthorized] = useState<boolean>(true)
+  const [isUserAuthorized, setIsUserAuthorized] = useState<boolean>(false);
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={isUserAuthorized ? <HomeLayout /> : <Auth />}>
-          <Route path='/' element={<Home />}/>
+        <Route path='/' element={isUserAuthorized ? <HomeLayout /> : <Auth setIsUserAuthorized={setIsUserAuthorized}/>}>
+          <Route index element={<Home />}/>
           <Route path='/profile' element={<Profile />}/>
         </Route>
       </Routes>
