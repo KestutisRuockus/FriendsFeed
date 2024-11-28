@@ -5,7 +5,7 @@ import ErrorMessage from "./ErrorMessage";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 
-const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent, setIsUserAuthorized }: LogInProps) => {
+const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent }: LogInProps) => {
 
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
@@ -15,12 +15,8 @@ const LogIn = ({ setIsRegistrationComponent, isRegistrationComponent, setIsUserA
       e.preventDefault();
 
       try {
-        const userExist = await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         console.log('User logged in successfully');
-        if(userExist) {
-          setIsUserAuthorized(true);
-          localStorage.setItem('isAuth', JSON.stringify(true))
-        }
       } catch (error) {
         if(error instanceof Error) {
           console.log(error.message);

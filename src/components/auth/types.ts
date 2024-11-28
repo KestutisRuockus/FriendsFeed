@@ -21,7 +21,6 @@ export type FormStateProps = {
     export type LogInProps = {
       setIsRegistrationComponent: React.Dispatch<React.SetStateAction<boolean>>;
       isRegistrationComponent: boolean
-      setIsUserAuthorized: React.Dispatch<React.SetStateAction<boolean>>;
     }
 
     export type SignUpProps = {
