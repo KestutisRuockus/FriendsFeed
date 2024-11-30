@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import { auth } from './firebase/firebaseConfig';
 import { User } from 'firebase/auth';
+import CreatePost from './pages/CreatePost';
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
         <Route path='/' element={authUser ? <HomeLayout /> : <Auth />}>
           <Route index element={<Home />}/>
           <Route path='/profile' element={<Profile />}/>
+          <Route path='/createpost' element={<CreatePost />}/>
         </Route>
       </Routes>
     </BrowserRouter>

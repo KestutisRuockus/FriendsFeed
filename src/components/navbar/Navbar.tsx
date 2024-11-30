@@ -44,18 +44,18 @@ const Navbar = () => {
                   text-3xl cursor-pointer hover:opacity-50 transition-colors duration-500 ease-in-out absolute right-6 top-6 z-20`}
       />
       <div 
-        className={`w-full flex md:flex-row flex-col justify-end items-start max-md:gap-2 max-md:py-8 md:items-center
+        className={`w-full flex md:flex-row flex-col justify-end max-md:gap-2 max-md:py-8 items-center
           max-md:absolute z-10 ${isOpen ? 'left-0' : 'max-md:-left-full'} top-0 transition-all duration-500 bg-secondary rounded-br-xl`}
       >
-        {navLinks.map((navLink, index) => createNavLink(navLink, index))}
+          {navLinks.map((navLink, index) => createNavLink(navLink, index))}
+          <button
+          className='text-primary text-nowrap font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
+            transition-all duration-500 ease-in-out'
+          onClick={handleLogout}
+        >
+          Log Out
+        </button>
       </div>
-      <button
-        className='mr-6 text-primary text-nowrap font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
-          transition-all duration-500 ease-in-out'
-        onClick={handleLogout}
-      >
-        Log Out
-      </button>
     </nav>
   )
 }

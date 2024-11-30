@@ -1,0 +1,143 @@
+import React, { useState } from "react";
+import ErrorMessage from "../components/auth/ErrorMessage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { app, auth, db } from "../firebase/firebaseConfig";
+import imageCompression from "browser-image-compression";
+import { v4 as uuidv4 } from 'uuid';
+import { doc, setDoc, Timestamp } from "firebase/firestore";
+
+const CreatePost = () => {
+  const [title, setTitle] =useState<string>('');
+  const [content, setContent] = useState<string>('');
+  const [image, setImage] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [uploading, setUploading] = useState<boolean>(false);
+  const [TemporaryImageUrl, setTemporaryImageURL] = useState<string>('');
+
+  const createPost = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+
+    if(image) {
+      try {
+        if(title.trim() === '') {
+          throw new Error('Title is required');
+        } else if (content.trim() === '') {
+          throw new Error('Content is required');
+        } else {
+          setUploading(true);
+          const imageId = uuidv4();
+          const storage = getStorage(app);
+          const storageRef = ref(storage, `posts/${auth.currentUser?.uid}/${imageId}-${image.name.replace(/\s+/g, '').replace(/[^\w.-]+/g, '-')}`)
+          await uploadBytes(storageRef, image);
+          const downloadUrl = await getDownloadURL(storageRef);
+          savePostsDetails(title, content, downloadUrl);
+          setTemporaryImageURL('');
+          setTitle('');
+          setContent('');
+          setErrorMessage('Post created successfully!');
+        }
+      } catch (error) {
+        if(error instanceof Error) {
+          console.log(error.message);
+          setErrorMessage(error.message);
+        }
+      } finally{
+        setUploading(false);
+      }
+  }
+}
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value);
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value);
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const chosenFile = e.target.files ? e.target.files[0] : undefined;
+        if (chosenFile) {
+          try {
+            const compressedFile = await compressImage(chosenFile);
+            setImage(compressedFile);
+            const TemporaryImageUrl = URL.createObjectURL(compressedFile);
+            setTemporaryImageURL(TemporaryImageUrl);
+          } catch (error) {
+            if(error instanceof Error){
+              console.log(error.message);
+            }
+          }
+          
+        }
+  }
+
+  const compressImage = async ( file: File ): Promise<File> => {
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 800,
+      useWebWorker: true,
+      fileType: 'image/webp'
+    }
+
+    return await imageCompression(file, options);
+  }
+
+  const savePostsDetails = async ( title: string, content: string, imageURL?: string ) => {
+
+    await setDoc(doc(db, 'posts', auth.currentUser!.uid), {
+      id: uuidv4(),
+      author: auth.currentUser?.email,
+      title,
+      content,
+      imageURL: imageURL || '',
+      likes: 0,
+      dislike: 0,
+      comments: [],
+      date: Timestamp.fromDate(new Date())
+    })
+  }
+
+  return (
+    <main className="bg-bgColor w-full min-h-screen flex flex-col items-center py-8">
+      <h2 className="text-2xl font-bold text-primary">Create Post</h2>
+      <form 
+        className="w-2/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8"
+      >
+        <div className="flex justify-center items-end mb-6">
+          <div>
+            <label className="text-xs font-semibold text-primary px-1">Image (optional):</label>
+            <input 
+              onChange={handleImageChange}
+              type="file" 
+              className="w-full rounded-lg px-2 outline-none mb-2 bg-none"
+              />
+          </div>
+          <div>
+            {TemporaryImageUrl && <img src={TemporaryImageUrl} width={240}/>}
+          </div>
+        </div>
+        <label className="text-xs font-semibold text-primary px-1">Title:</label>
+        <input 
+          onChange={handleTitleChange}
+          value={title} 
+          type="text" 
+          className="w-full rounded-lg px-2 outline-none mb-2 bg-bgColorSecondary"
+        />
+        <label className="text-xs font-semibold text-primary px-1">Content:</label>
+        <textarea 
+          onChange={handleContentChange}
+          value={content} 
+          className="w-full rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
+        />
+        <button 
+          onClick={createPost}
+          className='bg-primary px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500 mx-auto mt-8 text-white'
+          disabled={uploading}
+        >
+          {uploading ? 'Uploading...' : 'Upload post'}
+        </button>
+        <div className="mx-auto">
+          <ErrorMessage message={errorMessage} />
+        </div>
+      </form>
+    </main>
+  )
+}
+
+export default CreatePost;
