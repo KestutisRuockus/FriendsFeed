@@ -1,8 +1,18 @@
 export type PostProps = {
-    id: string;
-    content: string;
-    createdAt: string;
-  };
+  id: string;
+  title: string;
+  content: string;
+  date: number;
+  author: string;
+  comments: string[];
+  like: number;
+  dislike: number;
+  imageURL: string | null;
+};
+
+export type PostComponentProps = {
+  post: PostProps;
+};
 
 export type ProfileProps = {
     name: string;

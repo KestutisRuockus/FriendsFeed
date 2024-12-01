@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Auth from './components/auth/Auth';
 import HomeLayout from './layouts/HomeLayout';
-import Home from './pages/Home';
-import Profile from './pages/Profile';
+import Home from './pages/home/Home';
 import { auth } from './firebase/firebaseConfig';
 import { User } from 'firebase/auth';
-import CreatePost from './pages/CreatePost';
+import Profile from './pages/profile/Profile';
+import CreatePost from './pages/createPost/CreatePost';
 
 function App() {
 

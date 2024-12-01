@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { ProfileProps } from './types'
-import Female from '../assets/female.png';
-import Male from '../assets/male.png'
-import Other from '../assets/other.png'
-import Post from '../components/posts/Post';
-import { auth, db } from '../firebase/firebaseConfig';
+import { ProfileProps } from './../types'
+import Female from '../../assets/female.png';
+import Male from '../../assets/male.png'
+import Other from '../../assets/other.png'
+import Post from '../../components/posts/Post';
+import { auth, db } from '../../firebase/firebaseConfig';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import ErrorMessage from '../components/auth/ErrorMessage';
+import ErrorMessage from '../../components/auth/ErrorMessage';
+import { useFetchPosts } from '../../hooks/useFetchPosts';
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState<ProfileProps>({
@@ -18,6 +19,9 @@ const Profile = () => {
   });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const userEmail = auth.currentUser!.email;
+  const { posts } = useFetchPosts({userEmail});
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => setUserDetails({...userDetails, name: e.target.value});
   const handleEmailInput = (e: React.ChangeEvent<HTMLInputElement>) => setUserDetails({...userDetails, email: e.target.value});
@@ -201,7 +205,7 @@ const Profile = () => {
         </form>
       </div>
       <h2>Your posts</h2>
-      <Post />
+      {posts.map((post) => <Post key={post.id} post={post}/>)}
     </main>
   )
 }
