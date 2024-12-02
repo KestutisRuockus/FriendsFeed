@@ -1,5 +1,5 @@
-import Post from "../../components/posts/Post"
-import { useFetchPosts } from "../../hooks/useFetchPosts"
+import Post from "../../components/posts/Post";
+import { useFetchPosts } from "../../hooks/useFetchPosts";
 
 const Home = () => {
 

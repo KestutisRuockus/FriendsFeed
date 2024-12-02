@@ -4,7 +4,7 @@ import { db } from "../firebase/firebaseConfig";
 import { PostProps } from "../pages/types";
 
 
-export const useFetchPosts = ( { userEmail = null }: { userEmail?: string | null } = {} ) => {
+export const useFetchPosts = ( { username = null }: { username?: string | null } = {} ) => {
     const [posts, setPosts] = useState<PostProps[]>([]);
     const [lastVisibile, setLastVisible] = useState<DocumentData | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
@@ -21,10 +21,10 @@ export const useFetchPosts = ( { userEmail = null }: { userEmail?: string | null
                 limit(5)
             )
 
-            if( userEmail ) {
+            if( username ) {
                 q = query(
                     collectionGroup(db, 'userPosts'),
-                    where('author', "==", userEmail),
+                    where('author', "==", username),
                     limit(5)
                 );
             }
@@ -71,7 +71,8 @@ export const useFetchPosts = ( { userEmail = null }: { userEmail?: string | null
 
     useEffect(() => {
         fetchPosts(true)
-    }, [userEmail]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [username]);
 
     return { posts, loading, hasMore, fetchMorePosts: () => fetchPosts(false) };
 }

@@ -4,7 +4,7 @@ import { FormStateProps, SignUpProps } from './types';
 import Button from './Button';
 import ErrorMessage from "./ErrorMessage";
 import { auth, db } from '../../firebase/firebaseConfig';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
 const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpProps) => {
@@ -53,6 +53,13 @@ const SignUp = ({ isRegistrationComponent, setIsRegistrationComponent }: SignUpP
             gender: formState.gender,
           });
         }
+
+        if(auth.currentUser) {
+          await updateProfile(auth.currentUser, {
+            displayName: formState.fullName,
+          });
+        }
+
         console.log("User Registered Successfully!!");
         setErrorMessage("User Registered Successfully!!");
         resetForm();

@@ -84,7 +84,7 @@ const CreatePost = () => {
 
     await addDoc(postsCollectionRef, {
       id: uuidv4(),
-      author: auth.currentUser?.email,
+      author: auth.currentUser?.displayName,
       title,
       content,
       imageURL: imageURL || '',

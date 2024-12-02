@@ -2,6 +2,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import EmojiPicker from 'emoji-picker-react';
 import Comment from "./Comment";
 import { PostComponentProps } from "../../pages/types";
+import { auth } from "../../firebase/firebaseConfig";
 
 const Post = ({ post }: PostComponentProps) => {
     const [showMoreContent, setShowMoreContent] = useState<boolean>(false);
@@ -31,6 +32,24 @@ const Post = ({ post }: PostComponentProps) => {
         }
       }, []);
 
+      const formatDate = () => {
+
+        const date = new Date(post.date * 1000);
+        const year = date.getFullYear()
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        let hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        hours = (+hours % 12).toString() || (12).toString();
+        const amOrPm = +hours >= 12 ? 'AM' : 'PM';
+        const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${amOrPm}`
+
+        return formattedDateTime;
+      } 
+
+      const deletePost = () => console.log('Delete icon; ' + post.id );
+      const updatePost = () => console.log('Update icon; ' + post.id );
+
   return (
     <div
         className='sm:w-4/5 w-11/12 flex flex-col gap-4 border-8 rounded-lg border-secondary '
@@ -44,10 +63,20 @@ const Post = ({ post }: PostComponentProps) => {
                     <i className="fa-solid fa-user rounded-full">{/* <img src="" alt="" /> */}</i>
                 </div>
                 <div
-                    className="flex flex-col mr-6"
+                    className="flex gap-2 justify-center items-center"
                 >
-                    <div>{post.author}</div>
-                    <div className="italic">{post.date}</div>
+                    <div className="flex flex-col mr-6">
+                        <div>{post.author}</div>
+                        <div className="italic">{formatDate()}</div>
+                    </div>
+                    {auth.currentUser?.displayName === post.author && (
+                        <div className="flex justify-center items-center gap-4">
+                        <i onClick={deletePost} className="fa-solid fa-trash-can text-xl text-red-600 cursor-pointer 
+                            hover:opacity-70 transition-opacity duration-300"></i>
+                        <i onClick={updatePost} className="fa-solid fa-pen text-xl text-green-600 cursor-pointer
+                            hover:opacity-70 transition-opacity duration-300"></i>
+                    </div>
+                    )}
                 </div>
             </div>
         </div>

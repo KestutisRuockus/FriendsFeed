@@ -20,8 +20,8 @@ const Profile = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const userEmail = auth.currentUser!.email;
-  const { posts } = useFetchPosts({userEmail});
+  const username = auth.currentUser?.displayName;
+  const { posts } = useFetchPosts({username});
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => setUserDetails({...userDetails, name: e.target.value});
   const handleEmailInput = (e: React.ChangeEvent<HTMLInputElement>) => setUserDetails({...userDetails, email: e.target.value});
