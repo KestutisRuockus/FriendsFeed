@@ -1,4 +1,4 @@
-import { collection, DocumentData, getDocs, limit, orderBy, query, startAfter, where } from "firebase/firestore";
+import { collectionGroup, DocumentData, getDocs, limit, orderBy, query, startAfter, where } from "firebase/firestore";
 import { useEffect, useState } from "react"
 import { db } from "../firebase/firebaseConfig";
 import { PostProps } from "../pages/types";
@@ -16,14 +16,14 @@ export const useFetchPosts = ( { userEmail = null }: { userEmail?: string | null
         setLoading(true);
         try {
             let q = query(
-                collection(db, 'posts'),
+                collectionGroup(db, 'userPosts'),
                 orderBy('date', 'desc'),
                 limit(5)
             )
 
             if( userEmail ) {
                 q = query(
-                    collection(db, 'posts'),
+                    collectionGroup(db, 'userPosts'),
                     where('author', "==", userEmail),
                     limit(5)
                 );
@@ -42,6 +42,7 @@ export const useFetchPosts = ( { userEmail = null }: { userEmail?: string | null
 
             const data = querySnapshot.docs.map((doc) => {
                 const docData = doc.data();
+
 
                 return {
                     id: doc.id,

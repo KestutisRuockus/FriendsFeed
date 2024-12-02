@@ -4,7 +4,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { app, auth, db } from "../../firebase/firebaseConfig";
 import imageCompression from "browser-image-compression";
 import { v4 as uuidv4 } from 'uuid';
-import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 
 const CreatePost = () => {
   const [title, setTitle] =useState<string>('');
@@ -80,7 +80,9 @@ const CreatePost = () => {
 
   const savePostsDetails = async ( title: string, content: string, imageURL?: string ) => {
 
-    await setDoc(doc(db, 'posts', auth.currentUser!.uid), {
+    const postsCollectionRef = collection(db, "posts", auth.currentUser!.uid, "userPosts");
+
+    await addDoc(postsCollectionRef, {
       id: uuidv4(),
       author: auth.currentUser?.email,
       title,
