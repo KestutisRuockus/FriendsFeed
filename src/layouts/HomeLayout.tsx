@@ -1,19 +1,19 @@
-import { Outlet } from 'react-router-dom'
-import Navbar from '../components/navbar/Navbar'
-import Footer from '../components/footer/Footer'
-import FriendsList from '../components/friendsList/FriendsList'
+import { Outlet } from "react-router-dom";
+import Navbar from "./navbar/Navbar";
+import Footer from "./footer/Footer";
+import FriendsList from "../components/features/friendsList/FriendsList";
 
 const HomeLayout = () => {
   return (
-  <>
-    <Navbar />
-    <div className='flex flex-col-reverse md:flex-row min-h-screen'>
-      <Outlet />
-      <FriendsList />
-    </div>
-    <Footer />
-  </>
-  )
-}
+    <>
+      <Navbar />
+      <div className="flex flex-col-reverse md:flex-row min-h-screen">
+        <Outlet />
+        <FriendsList />
+      </div>
+      <Footer />
+    </>
+  );
+};
 
-export default HomeLayout
+export default HomeLayout;

@@ -1,8 +1,8 @@
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import Comment from "./Comment";
-import { PostComponentProps } from "../../pages/types";
-import { auth } from "../../firebase/firebaseConfig";
+import { PostComponentProps } from "../../../pages/types";
+import { auth } from "../../../firebase/firebaseConfig";
 import PostModal from "./PostModal";
 import { EditablePostValues } from "./types";
 

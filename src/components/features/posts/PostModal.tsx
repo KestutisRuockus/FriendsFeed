@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import ErrorMessage from "../auth/ErrorMessage";
+import ErrorMessage from "../../shared/ErrorMessage";
 import imageCompression from "browser-image-compression";
 import { PostModalProps } from "./types";
 import { doc, updateDoc } from "firebase/firestore";
-import { app, auth, db } from "../../firebase/firebaseConfig";
+import { app, auth, db } from "../../../firebase/firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 

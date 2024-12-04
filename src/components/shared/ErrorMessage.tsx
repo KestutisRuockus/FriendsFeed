@@ -1,7 +1,6 @@
-import { ErrorMessageProps } from './types';
+import { ErrorMessageProps } from "../features/auth/types";
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => {
-    
   if (!message) return null;
 
   return (
