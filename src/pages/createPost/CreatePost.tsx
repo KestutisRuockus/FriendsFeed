@@ -17,39 +17,43 @@ const CreatePost = () => {
   const createPost = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
-    if (image) {
-      try {
-        if (title.trim() === "") {
-          throw new Error("Title is required");
-        } else if (content.trim() === "") {
-          throw new Error("Content is required");
-        } else {
-          setUploading(true);
-          const imageId = uuidv4();
-          const storage = getStorage(app);
-          const storageRef = ref(
-            storage,
-            `posts/${auth.currentUser?.uid}/${imageId}-${image.name
-              .replace(/\s+/g, "")
-              .replace(/[^\w.-]+/g, "-")}`
-          );
+    // if (image) {
+    try {
+      if (title.trim() === "") {
+        throw new Error("Title is required");
+      } else if (content.trim() === "") {
+        throw new Error("Content is required");
+      } else {
+        setUploading(true);
+        const imageId = uuidv4();
+        const storage = getStorage(app);
+        const storageRef = ref(
+          storage,
+          `posts/${auth.currentUser?.uid}/${imageId}-${
+            image
+              ? image.name.replace(/\s+/g, "").replace(/[^\w.-]+/g, "-")
+              : ""
+          }`
+        );
+        if (image) {
           await uploadBytes(storageRef, image);
-          const downloadUrl = await getDownloadURL(storageRef);
-          savePostsDetails(title, content, downloadUrl);
-          setTemporaryImageURL("");
-          setTitle("");
-          setContent("");
-          setErrorMessage("Post created successfully!");
         }
-      } catch (error) {
-        if (error instanceof Error) {
-          console.log(error.message);
-          setErrorMessage(error.message);
-        }
-      } finally {
-        setUploading(false);
+        const downloadUrl = image ? await getDownloadURL(storageRef) : "";
+        savePostsDetails(title, content, downloadUrl);
+        setTemporaryImageURL("");
+        setTitle("");
+        setContent("");
+        setErrorMessage("Post created successfully!");
       }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+        setErrorMessage(error.message);
+      }
+    } finally {
+      setUploading(false);
     }
+    // }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) =>

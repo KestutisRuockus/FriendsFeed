@@ -3,9 +3,8 @@ import ErrorMessage from "../../shared/ErrorMessage";
 import imageCompression from "browser-image-compression";
 import { PostModalProps } from "./types";
 import { doc, updateDoc } from "firebase/firestore";
-import { app, auth, db } from "../../../firebase/firebaseConfig";
-import { v4 as uuidv4 } from "uuid";
-import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { auth, db } from "../../../firebase/firebaseConfig";
+import { saveImageToFirebaseStorage } from "../../../utils/ImageUtils";
 
 const PostModal = ({
   isOpen,
@@ -15,6 +14,7 @@ const PostModal = ({
   currentImage,
   postId,
   setEditablePostValues,
+  updatePostsStateById,
 }: PostModalProps) => {
   const [newTitle, setnewTitle] = useState<string>("");
   const [newContent, setnewContent] = useState<string>("");
@@ -40,17 +40,10 @@ const PostModal = ({
     };
 
     if (newImage) {
-      const imageId = uuidv4();
-      const storage = getStorage(app);
-      const storageRef = ref(
-        storage,
-        `posts/${auth.currentUser?.uid}/${imageId}-${newImage?.name
-          .replace(/\s+/g, "")
-          .replace(/[^\w.-]+/g, "-")}`
+      newData.imageURL = await saveImageToFirebaseStorage(
+        currentImage,
+        newImage
       );
-      await uploadBytes(storageRef, newImage);
-      const downloadUrl = await getDownloadURL(storageRef);
-      newData.imageURL = downloadUrl;
     }
 
     if (
@@ -59,6 +52,7 @@ const PostModal = ({
       currentImage === newData.imageURL
     ) {
       setErrorMessage("You did not make any changes to your post.");
+      return;
     } else {
       try {
         setUploading(true);
@@ -76,6 +70,7 @@ const PostModal = ({
         }
       } finally {
         setEditablePostValues(newData);
+        updatePostsStateById(postId, newData);
         setErrorMessage("Post updated successfully");
         setUploading(false);
       }
@@ -124,7 +119,7 @@ const PostModal = ({
     setnewTitle(currentTitle);
     setnewContent(currentContent);
     setTemporaryImageURL(currentImage);
-  }, []);
+  }, [currentContent, currentImage, currentTitle]);
 
   return (
     <div

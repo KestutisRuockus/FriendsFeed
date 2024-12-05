@@ -12,13 +12,18 @@ export type PostProps = {
 
 export type PostComponentProps = {
   post: PostProps;
+  removeDeletedPostFromPostsStateById: (postId: string) => void;
+  updatePostsStateById: (
+    postId: string,
+    newPostValues: Partial<PostProps>
+  ) => void;
 };
 
 export type ProfileProps = {
-    name: string;
-    email: string | null | undefined;
-    birthdate: string;
-    location: string;
-    gender: string;
-    posts?: PostProps[]
-}
+  name: string;
+  email: string | null | undefined;
+  birthdate: string;
+  location: string;
+  gender: string;
+  posts?: PostProps[];
+};

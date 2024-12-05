@@ -21,7 +21,10 @@ const Profile = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const username = auth.currentUser?.displayName;
-  const { posts } = useFetchPosts({ username });
+  const { posts, removeDeletedPostFromPostsStateById, updatePostsStateById } =
+    useFetchPosts({
+      username,
+    });
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setUserDetails({ ...userDetails, name: e.target.value });
@@ -225,7 +228,14 @@ const Profile = () => {
       </div>
       <h2>Your posts</h2>
       {posts.map((post) => (
-        <Post key={post.id} post={post} />
+        <Post
+          key={post.id}
+          post={post}
+          removeDeletedPostFromPostsStateById={
+            removeDeletedPostFromPostsStateById
+          }
+          updatePostsStateById={updatePostsStateById}
+        />
       ))}
     </main>
   );

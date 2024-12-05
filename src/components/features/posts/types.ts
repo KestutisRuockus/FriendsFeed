@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
+import { PostProps } from "../../../pages/types";
 
 export type PostModalProps = {
   isOpen: boolean;
@@ -8,6 +9,10 @@ export type PostModalProps = {
   currentImage: string | null;
   postId: string;
   setEditablePostValues: Dispatch<SetStateAction<EditablePostValues>>;
+  updatePostsStateById: (
+    postId: string,
+    newPostValues: Partial<PostProps>
+  ) => void;
 };
 
 export type EditablePostValues = {
