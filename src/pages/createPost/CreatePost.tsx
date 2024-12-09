@@ -17,7 +17,6 @@ const CreatePost = () => {
   const createPost = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
-    // if (image) {
     try {
       if (title.trim() === "") {
         throw new Error("Title is required");
@@ -53,7 +52,6 @@ const CreatePost = () => {
     } finally {
       setUploading(false);
     }
-    // }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -101,13 +99,13 @@ const CreatePost = () => {
     );
 
     await addDoc(postsCollectionRef, {
-      id: uuidv4(),
+      authorId: auth.currentUser?.uid,
       author: auth.currentUser?.displayName,
       title,
       content,
       imageURL: imageURL || "",
-      like: 0,
-      dislike: 0,
+      likesCount: 0,
+      dislikesCount: 0,
       comments: [],
       date: Timestamp.fromDate(new Date()),
     });

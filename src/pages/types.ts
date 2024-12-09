@@ -1,12 +1,13 @@
 export type PostProps = {
   id: string;
+  authorId: string;
   title: string;
   content: string;
   date: number;
   author: string;
   comments: string[];
-  like: number;
-  dislike: number;
+  likesCount: number;
+  dislikesCount: number;
   imageURL: string | null;
 };
 

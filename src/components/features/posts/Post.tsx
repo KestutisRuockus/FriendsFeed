@@ -6,7 +6,14 @@ import { auth, db } from "../../../firebase/firebaseConfig";
 import PostModal from "./PostModal";
 import { EditablePostValues } from "./types";
 import ErrorMessage from "../../shared/ErrorMessage";
-import { deleteDoc, doc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  increment,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { deletePostImageFromFirebaseStorage } from "../../../utils/ImageUtils";
 
 const Post = React.memo(
@@ -27,6 +34,8 @@ const Post = React.memo(
         content: post.content,
         imageURL: post.imageURL,
       });
+    const [likesCount, setLikesCount] = useState<number>(0);
+    const [dislikesCount, setDislikesCount] = useState<number>(0);
 
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -52,11 +61,91 @@ const Post = React.memo(
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
-    useEffect(() => {
-      if (contentRef.current) {
-        setIsOverflowing(contentRef.current.scrollHeight > 60);
+    const handleLikeButton = () => {
+      handleInteraction(post.id, post.authorId, auth.currentUser!.uid, "like");
+    };
+
+    const handleDislikeButton = () => {
+      handleInteraction(
+        post.id,
+        post.authorId,
+        auth.currentUser!.uid,
+        "dislike"
+      );
+    };
+
+    const handleInteraction = async (
+      postId: string,
+      authorId: string,
+      userId: string,
+      interaction: "like" | "dislike"
+    ) => {
+      const postRef = doc(db, "posts", authorId, "userPosts", postId);
+
+      const interactionRef = doc(
+        db,
+        "posts",
+        authorId,
+        "userPosts",
+        postId,
+        "interactions",
+        userId
+      );
+
+      try {
+        const interactionSnap = await getDoc(interactionRef);
+
+        if (interactionSnap.exists()) {
+          const currentInteraction = interactionSnap.data()?.interaction;
+
+          if (currentInteraction === interaction) {
+            await updateDoc(interactionRef, { interaction: "neutral" });
+
+            if (interaction === "like") {
+              await updateDoc(postRef, { likesCount: increment(-1) });
+              setLikesCount((prevCount) => prevCount - 1);
+            } else if (interaction === "dislike") {
+              await updateDoc(postRef, { dislikesCount: increment(-1) });
+              setDislikesCount((prevCount) => prevCount - 1);
+            }
+          } else {
+            await setDoc(interactionRef, { interaction });
+
+            if (interaction === "like") {
+              await updateDoc(postRef, { likesCount: increment(1) });
+              setLikesCount((prevCount) => prevCount + 1);
+
+              if (currentInteraction === "dislike") {
+                await updateDoc(postRef, { dislikesCount: increment(-1) });
+                setDislikesCount((prevCount) => prevCount - 1);
+              }
+            } else if (interaction === "dislike") {
+              await updateDoc(postRef, { dislikesCount: increment(1) });
+              setDislikesCount((prevCount) => prevCount + 1);
+
+              if (currentInteraction === "like") {
+                await updateDoc(postRef, { likesCount: increment(-1) });
+                setLikesCount((prevCount) => prevCount - 1);
+              }
+            }
+          }
+        } else {
+          await setDoc(interactionRef, { interaction });
+
+          if (interaction === "like") {
+            await updateDoc(postRef, { likesCount: increment(1) });
+            setLikesCount((prevCount) => prevCount + 1);
+          } else if (interaction === "dislike") {
+            await updateDoc(postRef, { dislikesCount: increment(1) });
+            setDislikesCount((prevCount) => prevCount - 1);
+          }
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(error.message);
+        }
       }
-    }, [editablePostValues.content]);
+    };
 
     const formatDate = () => {
       const date = new Date(post.date * 1000);
@@ -94,6 +183,17 @@ const Post = React.memo(
         }
       }
     };
+
+    useEffect(() => {
+      if (contentRef.current) {
+        setIsOverflowing(contentRef.current.scrollHeight > 60);
+      }
+    }, [editablePostValues.content]);
+
+    useEffect(() => {
+      setLikesCount(post.likesCount);
+      setDislikesCount(post.dislikesCount);
+    }, [post.dislikesCount, post.likesCount]);
 
     return (
       <div className="sm:w-4/5 w-11/12 flex flex-col gap-4 border-8 rounded-lg border-secondary relative">
@@ -177,20 +277,16 @@ const Post = React.memo(
           )}
           <div className="my-6 flex gap-6">
             <div className="flex gap-1 items-center">
-              <p className="text-primary font-bold">
-                Likes: <span>{post.like}</span>
-              </p>
+              <span className="text-green-700 font-bold">{likesCount}</span>
               <i
-                onClick={() => {}}
+                onClick={handleLikeButton}
                 className="fa-solid fa-thumbs-up  text-green-700 cursor-pointer hover:opacity-70 transition-opacity duration-300"
               ></i>
             </div>
             <div className="flex gap-1 items-center">
-              <p className="text-primary font-bold">
-                Dislikes: <span>{post.dislike}</span>
-              </p>
+              <span className="text-red-700 font-bold">{dislikesCount}</span>
               <i
-                onClick={() => {}}
+                onClick={handleDislikeButton}
                 className="fa-solid fa-thumbs-down pt-1 text-rose-700 cursor-pointer hover:opacity-70 transition-opacity duration-300"
               ></i>
             </div>

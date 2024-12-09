@@ -1,6 +1,6 @@
 type ButtonProps = {
   text: string;
-  fn: () => void;
+  fn: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
 };
 
 const Button = ({ text, fn }: ButtonProps) => {

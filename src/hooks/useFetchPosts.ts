@@ -56,13 +56,14 @@ export const useFetchPosts = ({
 
         return {
           id: doc.id,
+          authorId: docData.authorId,
           title: docData.title,
           content: docData.content,
           date: docData.date.seconds,
           author: docData.author,
           comments: docData.comments,
-          like: docData.like,
-          dislike: docData.dislike,
+          likesCount: docData.likesCount,
+          dislikesCount: docData.dislikesCount,
           imageURL: docData.imageURL,
         };
       }) as PostProps[];
