@@ -56,6 +56,7 @@ const CreatePost = () => {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setTitle(e.target.value);
+
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
     setContent(e.target.value);
 
@@ -106,7 +107,6 @@ const CreatePost = () => {
       imageURL: imageURL || "",
       likesCount: 0,
       dislikesCount: 0,
-      comments: [],
       date: Timestamp.fromDate(new Date()),
     });
   };

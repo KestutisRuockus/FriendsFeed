@@ -20,3 +20,14 @@ export type EditablePostValues = {
   content: string;
   imageURL: string | null;
 };
+
+export type CommentsProps = {
+  commentatorId: string;
+  commentatorName?: string;
+  commentText: string;
+  date: string;
+};
+
+export type SingleCommentProps = {
+  comment: CommentsProps;
+};

@@ -6,7 +6,7 @@ const Home = () => {
     useFetchPosts();
 
   return (
-    <main className="bg-bgColor w-full flex flex-col items-center py-8">
+    <main className="bg-bgColor w-full flex gap-4 flex-col items-center py-8">
       {posts.map((post) => (
         <Post
           key={post.id}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { SingleCommentProps } from "./types";
 
-const Comment = () => {
+const Comment = ({ comment }: SingleCommentProps) => {
   const [showMoreComment, setShowMoreComment] = useState<boolean>(false);
   const [isCommentOverflowing, setIsCommentOverflowing] =
     useState<boolean>(false);
@@ -20,7 +21,9 @@ const Comment = () => {
         <i className="fa-solid fa-user rounded-full text-xs">
           {/* <img src="" alt="" /> */}
         </i>
-        <p className="text-sm font-semibold text-primary">Ben Benson</p>
+        <p className="text-sm font-semibold text-primary">
+          {comment.commentatorName}
+        </p>
       </div>
       <div
         ref={commentRef}
@@ -31,12 +34,8 @@ const Comment = () => {
                     : "max-h-[3rem]"
                 }`}
       >
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime
-        reiciendis fugit similique nemo adipisci expedita numquam commodi
-        necessitatibus inventore aspernatur, doloribus quasi, vel, quis error
-        magnam laboriosam sapiente explicabo dolor animi! Aperiam in porro
-        mollitia recusandae, vitae natus optio sint sed vero corrupti animi
-        iusto ab perferendis quasi maiores inventore?
+        {comment.commentText}
+        <p className="text-[0.6rem] text-gray-400">{comment.date}</p>
       </div>
       {isCommentOverflowing && (
         <div

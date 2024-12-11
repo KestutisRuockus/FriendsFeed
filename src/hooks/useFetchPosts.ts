@@ -1,6 +1,9 @@
 import {
+  collection,
   collectionGroup,
+  doc,
   DocumentData,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -51,24 +54,82 @@ export const useFetchPosts = ({
         return;
       }
 
-      const data = querySnapshot.docs.map((doc) => {
-        const docData = doc.data();
+      const postData = (await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const docData = doc.data();
 
-        return {
-          id: doc.id,
-          authorId: docData.authorId,
-          title: docData.title,
-          content: docData.content,
-          date: docData.date.seconds,
-          author: docData.author,
-          comments: docData.comments,
-          likesCount: docData.likesCount,
-          dislikesCount: docData.dislikesCount,
-          imageURL: docData.imageURL,
-        };
-      }) as PostProps[];
+          const commentsRef = collection(
+            db,
+            `posts/${docData.authorId}/userPosts/${doc.id}/comments`
+          );
+          const commentSnapshot = await getDocs(commentsRef);
 
-      setPosts((prev) => (isInitialFetch ? data : [...prev, ...data]));
+          const comments = commentSnapshot.docs.map((comment) => {
+            const commentData = comment.data();
+            return {
+              id: comment.id,
+              commentatorId: commentData.commentatorId,
+              commentText: commentData.commentText,
+              date: commentData.date,
+            };
+          });
+
+          const sortedComments = comments.sort((a, b) => {
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          });
+
+          return {
+            id: doc.id,
+            authorId: docData.authorId,
+            title: docData.title,
+            content: docData.content,
+            date: docData.date.seconds,
+            author: docData.author,
+            likesCount: docData.likesCount,
+            dislikesCount: docData.dislikesCount,
+            imageURL: docData.imageURL,
+            comments: sortedComments,
+          };
+        })
+      )) as PostProps[];
+
+      const allCommentatorsIds = Array.from(
+        new Set(
+          postData.flatMap((post) =>
+            post.comments?.map((comment) => comment.commentatorId)
+          )
+        )
+      );
+
+      const validCommentatorIds = allCommentatorsIds.filter(
+        (id) => id !== undefined
+      );
+
+      const commentatorsDocs = await Promise.all(
+        validCommentatorIds.map((id) => getDoc(doc(db, "users", id)))
+      );
+
+      const commentatorsNameMap = commentatorsDocs.reduce((map, docSnap) => {
+        if (docSnap.exists()) {
+          map[docSnap.id] = docSnap.data().name;
+        }
+        return map;
+      }, {} as Record<string, string>);
+
+      const updatedPosts: PostProps[] = postData.map((post) => ({
+        ...post,
+        comments: post.comments
+          ? post.comments?.map((comment) => ({
+              ...comment,
+              commentatorName:
+                commentatorsNameMap[comment.commentatorId] || "Unknown",
+            }))
+          : null,
+      }));
+
+      setPosts((prev) =>
+        isInitialFetch ? updatedPosts : [...prev, ...updatedPosts]
+      );
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
     } catch (error) {
       if (error instanceof Error) {

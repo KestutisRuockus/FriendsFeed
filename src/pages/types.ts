@@ -5,11 +5,19 @@ export type PostProps = {
   content: string;
   date: number;
   author: string;
-  comments: string[];
   likesCount: number;
   dislikesCount: number;
   imageURL: string | null;
+  comments: CommentsProps | null;
 };
+
+export type CommentsProps = {
+  id: string;
+  commentatorId: string;
+  commentatorName?: string;
+  commentText: string;
+  date: string;
+}[];
 
 export type PostComponentProps = {
   post: PostProps;

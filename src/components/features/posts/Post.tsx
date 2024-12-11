@@ -4,9 +4,11 @@ import Comment from "./Comment";
 import { PostComponentProps } from "../../../pages/types";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import PostModal from "./PostModal";
-import { EditablePostValues } from "./types";
+import { CommentsProps, EditablePostValues } from "./types";
 import ErrorMessage from "../../shared/ErrorMessage";
 import {
+  addDoc,
+  collection,
   deleteDoc,
   doc,
   getDoc,
@@ -36,6 +38,7 @@ const Post = React.memo(
       });
     const [likesCount, setLikesCount] = useState<number>(0);
     const [dislikesCount, setDislikesCount] = useState<number>(0);
+    const [comments, setComments] = useState<CommentsProps[] | null>(null);
 
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -48,25 +51,58 @@ const Post = React.memo(
       target: { value: SetStateAction<string> };
     }) => setCommentInput(e.target.value);
 
-    const handleEmoji = (emojiObject: { emoji: string }) =>
-      setCommentInput(commentInput + emojiObject.emoji);
-
-    const handleCommentSubmit = () => {
+    const addOrUpdateComment = async () => {
       if (commentInput.trim() !== "") {
-        console.log(commentInput);
+        try {
+          if (auth.currentUser) {
+            const commentsRef = collection(
+              db,
+              `posts/${post.authorId}/userPosts/${post.id}/comments`
+            );
+
+            const newComment = {
+              commentatorId: auth.currentUser.uid,
+              commentatorName: auth.currentUser.displayName ?? "Anonymous",
+              commentText: commentInput,
+              date: formatDate(true),
+            };
+
+            await addDoc(commentsRef, newComment);
+            setComments((prevComments) =>
+              prevComments ? [...prevComments, newComment] : [newComment]
+            );
+          } else {
+            console.error("User is not logged in, cannot add comment.");
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            console.log("Error adding comment: ", error.message);
+          }
+        } finally {
+          setOpenEmojiPicker(false);
+        }
+
         setCommentInput("");
       }
     };
+
+    const handleEmoji = (emojiObject: { emoji: string }) =>
+      setCommentInput(commentInput + emojiObject.emoji);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
     const handleLikeButton = () => {
-      handleInteraction(post.id, post.authorId, auth.currentUser!.uid, "like");
+      handleLikesOrDislikesButtonsInteraction(
+        post.id,
+        post.authorId,
+        auth.currentUser!.uid,
+        "like"
+      );
     };
 
     const handleDislikeButton = () => {
-      handleInteraction(
+      handleLikesOrDislikesButtonsInteraction(
         post.id,
         post.authorId,
         auth.currentUser!.uid,
@@ -74,7 +110,7 @@ const Post = React.memo(
       );
     };
 
-    const handleInteraction = async (
+    const handleLikesOrDislikesButtonsInteraction = async (
       postId: string,
       authorId: string,
       userId: string,
@@ -147,15 +183,15 @@ const Post = React.memo(
       }
     };
 
-    const formatDate = () => {
-      const date = new Date(post.date * 1000);
+    const formatDate = (isNewCommentDate = false) => {
+      const date = isNewCommentDate ? new Date() : new Date(post.date * 1000);
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const day = date.getDate().toString().padStart(2, "0");
-      let hours = date.getHours().toString().padStart(2, "0");
+      let hours = date.getHours();
       const minutes = date.getMinutes().toString().padStart(2, "0");
-      hours = (+hours % 12).toString() || (12).toString();
-      const amOrPm = +hours >= 12 ? "AM" : "PM";
+      const amOrPm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
       const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${amOrPm}`;
 
       return formattedDateTime;
@@ -193,7 +229,8 @@ const Post = React.memo(
     useEffect(() => {
       setLikesCount(post.likesCount);
       setDislikesCount(post.dislikesCount);
-    }, [post.dislikesCount, post.likesCount]);
+      setComments(post.comments);
+    }, [post.comments, post.dislikesCount, post.likesCount]);
 
     return (
       <div className="sm:w-4/5 w-11/12 flex flex-col gap-4 border-8 rounded-lg border-secondary relative">
@@ -292,12 +329,14 @@ const Post = React.memo(
             </div>
           </div>
           <div className="w-full">
-            <Comment />
+            {comments
+              ? comments.map((comment) => <Comment comment={comment} />)
+              : ""}
             <div className="flex w-full mt-2">
               <input
                 onKeyDown={(e: { key: string }) => {
                   if (e.key === "Enter") {
-                    handleCommentSubmit();
+                    addOrUpdateComment();
                   }
                 }}
                 onChange={handleCommentInput}
@@ -307,7 +346,7 @@ const Post = React.memo(
                 placeholder="Enter Comment..."
               />
               <div
-                onClick={handleCommentSubmit}
+                onClick={addOrUpdateComment}
                 className="flex justify-center items-center bg-white px-2 rounded-r-lg hover:opacity-50 transition-opacity duration-300 cursor-pointer"
               >
                 <i
