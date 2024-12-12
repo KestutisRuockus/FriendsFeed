@@ -141,7 +141,7 @@ const CreatePost = () => {
           </div>
         </div>
         <label className="text-xs font-semibold text-primary px-1">
-          Title:
+          Title:<sup className="text-red-600 font-bold">*</sup>
         </label>
         <input
           onChange={handleTitleChange}
@@ -150,12 +150,12 @@ const CreatePost = () => {
           className="w-full rounded-lg px-2 outline-none mb-2 bg-bgColorSecondary"
         />
         <label className="text-xs font-semibold text-primary px-1">
-          Content:
+          Content:<sup className="text-red-600 font-bold">*</sup>
         </label>
         <textarea
           onChange={handleContentChange}
           value={content}
-          className="w-full rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
+          className="w-full h-60 rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
         />
         <EmojiPickerComponent
           open={openEmojiPicker}

@@ -106,7 +106,7 @@ const PostModal = ({
 
   useEffect(() => {
     if (isOpen && parentRef.current) {
-      parentRef.current.scrollIntoView({ behavior: "smooth" });
+      parentRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       document.body.style.overflow = "hidden";
     }
 
@@ -124,7 +124,7 @@ const PostModal = ({
   return (
     <div
       ref={parentRef}
-      className="w-full absolute inset-0 flex items-center justify-center"
+      className="w-full absolute inset-0 flex items-center justify-center z-10"
     >
       <form className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4 relative">
         <i
@@ -152,7 +152,7 @@ const PostModal = ({
           </div>
         </div>
         <label className="text-xs font-semibold text-primary px-1">
-          Title:
+          Title:<sup className="text-red-600 font-bold">*</sup>
         </label>
         <input
           onChange={handleTitleChange}
@@ -161,17 +161,16 @@ const PostModal = ({
           className="w-full rounded-lg px-2 outline-none mb-2 bg-bgColorSecondary"
         />
         <label className="text-xs font-semibold text-primary px-1">
-          Content:
+          Content:<sup className="text-red-600 font-bold">*</sup>
         </label>
         <textarea
           onChange={handleContentChange}
           value={newContent}
-          className="w-full rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
+          className="w-full h-60 rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
         />
         <button
           onClick={updatePost}
           className="bg-primary px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500 mx-auto mt-8 text-white"
-          //   disabled={uploading}
         >
           {uploading ? "Updating..." : "Update post"}
         </button>

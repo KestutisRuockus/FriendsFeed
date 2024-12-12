@@ -224,7 +224,7 @@ const Post = React.memo(
     }, [post.comments, post.dislikesCount, post.likesCount]);
 
     return (
-      <div className="sm:w-4/5 w-11/12 flex flex-col gap-4 border-8 rounded-lg border-secondary relative">
+      <div className="sm:w-4/5 w-11/12 flex flex-col gap-6 border-8 rounded-lg border-secondary relative">
         {isModalOpen && (
           <PostModal
             isOpen={true}
@@ -237,30 +237,32 @@ const Post = React.memo(
             updatePostsStateById={updatePostsStateById}
           />
         )}
-        <div className="flex flex-col-reverse sm:flex-row justify-between py-4 px-8 lg:px-16 max-lg:pr-0">
-          <h1 className="w-full md:w-2/3 font-bold text-lg pt-4">
+        <div className="flex flex-col-reverse sm:flex-row justify-between pt-4 px-8 lg:px-16 max-lg:pr-0">
+          <h1 className="w-full md:w-1/2 font-bold text-lg pt-4 sm:pt-8 pr-2">
             {editablePostValues.title}
           </h1>
-          <div className="w-full md:w-1/3 flex gap-4 sm:justify-end items-center text-primary font-semibold text-sm">
+          <div className="w-full md:w-1/2 flex gap-4 sm:justify-end items-center pl-2 pt-8 text-primary font-semibold text-sm relative">
             <div className="flex flex-col items-center">
-              <div className="flex gap-2 justify-center items-center">
-                <i className="fa-solid fa-user rounded-full">
-                  {/* <img src="" alt="" /> */}
-                </i>
-                <div className="flex flex-col mr-6">
-                  <div>{post.author}</div>
-                  <div className="italic">{formatDate()}</div>
+              <div className="flex h-full gap-2 justify-center items-center">
+                <div className="w-full flex justify-center items-center gap-2">
+                  <i className="fa-solid fa-user rounded-full">
+                    {/* <img src="" alt="" /> */}
+                  </i>
+                  <div className="flex flex-col mr-6">
+                    <div>{post.author}</div>
+                    <div className="italic">{formatDate()}</div>
+                  </div>
                 </div>
                 {auth.currentUser?.displayName === post.author && (
-                  <div className="flex justify-center items-center gap-4">
+                  <div className="flex justify-center items-center gap-4 pr-1 absolute right-5 lg:right-0 top-0">
                     <i
                       onClick={deletePost}
-                      className="fa-solid fa-trash-can text-xl text-red-600 cursor-pointer 
+                      className="fa-solid fa-trash-can text-lg text-red-600 cursor-pointer 
                             hover:opacity-70 transition-opacity duration-300"
                     ></i>
                     <i
                       onClick={openModal}
-                      className="fa-solid fa-pen text-xl text-green-600 cursor-pointer
+                      className="fa-solid fa-pen text-lg text-green-600 cursor-pointer
                             hover:opacity-70 transition-opacity duration-300"
                     ></i>
                   </div>
@@ -273,7 +275,7 @@ const Post = React.memo(
           </div>
         </div>
         {editablePostValues.imageURL && (
-          <div className="px-4">
+          <div className="px-4 w-full max-w-[100%] sm:max-w-[400px] md:max-w-[600px] h-auto object-contain m-auto">
             <img
               src={
                 editablePostValues.imageURL ? editablePostValues.imageURL : ""
@@ -284,7 +286,7 @@ const Post = React.memo(
           </div>
         )}
 
-        <div className="py-4 px-8 lg:py-8 lg:px-16">
+        <div className="px-8 pb-4 lg:px-16">
           <div
             ref={contentRef}
             className={`overflow-hidden transition-max-height duration-500 ease-in-out ${
