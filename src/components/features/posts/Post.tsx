@@ -1,5 +1,6 @@
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import EmojiPicker from "emoji-picker-react";
+// import EmojiPicker from "emoji-picker-react";
+import EmojiPickerComponent from "../../../utils/EmojiPickerComponent";
 import Comment from "./Comment";
 import { PostComponentProps } from "../../../pages/types";
 import { auth, db } from "../../../firebase/firebaseConfig";
@@ -27,7 +28,6 @@ const Post = React.memo(
   }: PostComponentProps) => {
     const [showMoreContent, setShowMoreContent] = useState<boolean>(false);
     const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
-    const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
     const [commentInput, setCommentInput] = useState<string>("");
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -40,13 +40,12 @@ const Post = React.memo(
     const [likesCount, setLikesCount] = useState<number>(0);
     const [dislikesCount, setDislikesCount] = useState<number>(0);
     const [comments, setComments] = useState<CommentsProps[] | null>(null);
+    const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
     const contentRef = useRef<HTMLDivElement>(null);
 
     const handleShowMoreContentState = () =>
       setShowMoreContent(!showMoreContent);
-
-    const handleEmojiPickerElement = () => setOpenEmojiPicker(!openEmojiPicker);
 
     const handleCommentInput = (e: {
       target: { value: SetStateAction<string> };
@@ -94,8 +93,9 @@ const Post = React.memo(
       }
     };
 
-    const handleEmoji = (emojiObject: { emoji: string }) =>
-      setCommentInput(commentInput + emojiObject.emoji);
+    const handleEmojiSelect = (emoji: string) => {
+      setCommentInput(commentInput + emoji);
+    };
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -348,22 +348,11 @@ const Post = React.memo(
                 />
               </div>
             </div>
-            <div>
-              <button
-                onClick={handleEmojiPickerElement}
-                className="text-sm rounded-lg bg-white px-2 hover:opacity-50 transition-opacity duration-300"
-              >
-                Emojis +
-              </button>
-              <div className="w-full">
-                {openEmojiPicker && (
-                  <EmojiPicker
-                    style={{ width: 300, maxWidth: "100%" }}
-                    onEmojiClick={handleEmoji}
-                  />
-                )}
-              </div>
-            </div>
+            <EmojiPickerComponent
+              open={openEmojiPicker}
+              setOpen={setOpenEmojiPicker}
+              onEmojiSelect={handleEmojiSelect}
+            />
           </div>
         </div>
       </div>

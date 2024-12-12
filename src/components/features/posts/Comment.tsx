@@ -3,6 +3,7 @@ import { SingleCommentProps } from "./types";
 import { deleteDoc, doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase/firebaseConfig";
 import { formatDate } from "../../../utils/formatedDate";
+import EmojiPickerComponent from "../../../utils/EmojiPickerComponent";
 
 const Comment = ({ comment, setComments }: SingleCommentProps) => {
   const [showMoreComment, setShowMoreComment] = useState<boolean>(false);
@@ -11,16 +12,15 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
   const [editedCommentInput, setEditedCommentInput] = useState<string>("");
   const [showEditedCommentInput, setShowEditedCommentInput] =
     useState<boolean>(false);
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
   const commentRef = useRef<HTMLDivElement>(null);
 
   const handleShowMoreCommentState = () => setShowMoreComment(!showMoreComment);
 
-  useEffect(() => {
-    if (commentRef.current) {
-      setIsCommentOverflowing(commentRef.current.scrollHeight > 60);
-    }
-  }, []);
+  const handleEmojiSelect = (emoji: string) => {
+    setEditedCommentInput(editedCommentInput + emoji);
+  };
 
   const deleteComment = async () => {
     try {
@@ -51,6 +51,12 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
   const handleEditedCommentInput = (e: {
     target: { value: SetStateAction<string> };
   }) => setEditedCommentInput(e.target.value);
+
+  useEffect(() => {
+    if (commentRef.current) {
+      setIsCommentOverflowing(commentRef.current.scrollHeight > 60);
+    }
+  }, []);
 
   const updateComment = async () => {
     if (editedCommentInput.trim() !== "") {
@@ -83,6 +89,8 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
         if (error instanceof Error) {
           console.log(error.message);
         }
+      } finally {
+        setOpenEmojiPicker(false);
       }
     }
     console.log(`update comment`);
@@ -131,34 +139,41 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
         <p className="text-[0.6rem] text-gray-400">{comment.date}</p>
       </div>
       {showEditedCommentInput && (
-        <div className="flex w-4/5 p-2 mt-2 bg-secondary rounded-xl">
-          <input
-            onKeyDown={(e: { key: string }) => {
-              if (e.key === "Enter") {
-                updateComment();
-              }
-            }}
-            onChange={handleEditedCommentInput}
-            value={editedCommentInput}
-            className="w-full pl-2 rounded-l-lg outline-none"
-            type="text"
-            placeholder="Enter Comment..."
-          />
-          <div
-            onClick={updateComment}
-            className="flex justify-center items-center bg-white px-2 rounded-r-lg hover:opacity-50 transition-opacity duration-300 cursor-pointer"
-          >
-            <i
-              onClick={() => {}}
-              className="fa-solid fa-location-arrow text-xl text-primary rotate-45"
+        <div>
+          <div className="flex w-4/5 p-2 mt-2 bg-secondary rounded-xl">
+            <input
+              onKeyDown={(e: { key: string }) => {
+                if (e.key === "Enter") {
+                  updateComment();
+                }
+              }}
+              onChange={handleEditedCommentInput}
+              value={editedCommentInput}
+              className="w-full pl-2 rounded-l-lg outline-none"
+              type="text"
+              placeholder="Enter Comment..."
             />
+            <div
+              onClick={updateComment}
+              className="flex justify-center items-center bg-white px-2 rounded-r-lg hover:opacity-50 transition-opacity duration-300 cursor-pointer"
+            >
+              <i
+                onClick={() => {}}
+                className="fa-solid fa-location-arrow text-xl text-primary rotate-45"
+              />
+            </div>
+            <div className="flex justify-center items-center ms-2 rounded-lg hover:opacity-50 transition-opacity duration-300">
+              <i
+                onClick={handleEditedCommentInputElement}
+                className="fa-solid fa-rectangle-xmark text-2xl text-red-600 cursor-pointer"
+              ></i>
+            </div>
           </div>
-          <div className="flex justify-center items-center ms-2 rounded-lg hover:opacity-50 transition-opacity duration-300">
-            <i
-              onClick={handleEditedCommentInputElement}
-              className="fa-solid fa-rectangle-xmark text-2xl text-red-600 cursor-pointer"
-            ></i>
-          </div>
+          <EmojiPickerComponent
+            open={openEmojiPicker}
+            setOpen={setOpenEmojiPicker}
+            onEmojiSelect={handleEmojiSelect}
+          />
         </div>
       )}
       {isCommentOverflowing && (

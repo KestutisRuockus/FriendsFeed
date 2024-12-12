@@ -5,6 +5,7 @@ import { app, auth, db } from "../../firebase/firebaseConfig";
 import imageCompression from "browser-image-compression";
 import { v4 as uuidv4 } from "uuid";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
+import EmojiPickerComponent from "../../utils/EmojiPickerComponent";
 
 const CreatePost = () => {
   const [title, setTitle] = useState<string>("");
@@ -13,6 +14,7 @@ const CreatePost = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
   const [TemporaryImageUrl, setTemporaryImageURL] = useState<string>("");
+  const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
   const createPost = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -51,6 +53,7 @@ const CreatePost = () => {
       }
     } finally {
       setUploading(false);
+      setOpenEmojiPicker(false);
     }
   };
 
@@ -111,10 +114,17 @@ const CreatePost = () => {
     });
   };
 
+  const handleEmojiSelect = (emoji: string) => {
+    setContent(content + emoji);
+  };
+
   return (
     <main className="bg-bgColor w-full min-h-screen flex flex-col items-center py-8">
       <h2 className="text-2xl font-bold text-primary">Create Post</h2>
-      <form className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4"
+      >
         <div className="flex flex-col-reverse md:flex-row justify-center items-end mb-6">
           <div>
             <label className="text-xs font-semibold text-primary px-1">
@@ -146,6 +156,11 @@ const CreatePost = () => {
           onChange={handleContentChange}
           value={content}
           className="w-full rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
+        />
+        <EmojiPickerComponent
+          open={openEmojiPicker}
+          setOpen={setOpenEmojiPicker}
+          onEmojiSelect={handleEmojiSelect}
         />
         <button
           onClick={createPost}
