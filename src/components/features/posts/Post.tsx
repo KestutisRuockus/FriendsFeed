@@ -17,6 +17,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { deletePostImageFromFirebaseStorage } from "../../../utils/ImageUtils";
+import { formatDate } from "../../../utils/formatedDate";
 
 const Post = React.memo(
   ({
@@ -51,7 +52,7 @@ const Post = React.memo(
       target: { value: SetStateAction<string> };
     }) => setCommentInput(e.target.value);
 
-    const addOrUpdateComment = async () => {
+    const addNewComment = async () => {
       if (commentInput.trim() !== "") {
         try {
           if (auth.currentUser) {
@@ -188,20 +189,6 @@ const Post = React.memo(
           console.log(error.message);
         }
       }
-    };
-
-    const formatDate = (isNewCommentDate = false) => {
-      const date = isNewCommentDate ? new Date() : new Date(post.date * 1000);
-      const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, "0");
-      const day = date.getDate().toString().padStart(2, "0");
-      let hours = date.getHours();
-      const minutes = date.getMinutes().toString().padStart(2, "0");
-      const amOrPm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12 || 12;
-      const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${amOrPm}`;
-
-      return formattedDateTime;
     };
 
     const deletePost = async () => {
@@ -342,7 +329,7 @@ const Post = React.memo(
               <input
                 onKeyDown={(e: { key: string }) => {
                   if (e.key === "Enter") {
-                    addOrUpdateComment();
+                    addNewComment();
                   }
                 }}
                 onChange={handleCommentInput}
@@ -352,7 +339,7 @@ const Post = React.memo(
                 placeholder="Enter Comment..."
               />
               <div
-                onClick={addOrUpdateComment}
+                onClick={addNewComment}
                 className="flex justify-center items-center bg-white px-2 rounded-r-lg hover:opacity-50 transition-opacity duration-300 cursor-pointer"
               >
                 <i

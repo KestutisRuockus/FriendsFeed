@@ -1,12 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { SingleCommentProps } from "./types";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase/firebaseConfig";
+import { formatDate } from "../../../utils/formatedDate";
 
 const Comment = ({ comment, setComments }: SingleCommentProps) => {
   const [showMoreComment, setShowMoreComment] = useState<boolean>(false);
   const [isCommentOverflowing, setIsCommentOverflowing] =
     useState<boolean>(false);
+  const [editedCommentInput, setEditedCommentInput] = useState<string>("");
+  const [showEditedCommentInput, setShowEditedCommentInput] =
+    useState<boolean>(false);
+
   const commentRef = useRef<HTMLDivElement>(null);
 
   const handleShowMoreCommentState = () => setShowMoreComment(!showMoreComment);
@@ -38,6 +43,52 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
     }
   };
 
+  const handleEditedCommentInputElement = () => {
+    setEditedCommentInput(comment.commentText);
+    setShowEditedCommentInput(!showEditedCommentInput);
+  };
+
+  const handleEditedCommentInput = (e: {
+    target: { value: SetStateAction<string> };
+  }) => setEditedCommentInput(e.target.value);
+
+  const updateComment = async () => {
+    if (editedCommentInput.trim() !== "") {
+      try {
+        if (auth.currentUser && comment.commentId) {
+          const commentRef = doc(
+            db,
+            `posts/${comment.postAuthorId}/userPosts/${comment.postId}/comments/${comment.commentId}`
+          );
+
+          const updatedComment = {
+            ...comment,
+            commentText: editedCommentInput,
+            date: formatDate(true),
+          };
+
+          await setDoc(commentRef, updatedComment);
+
+          setComments((prevComments) =>
+            prevComments
+              ? prevComments.map((prevComment) =>
+                  prevComment.commentId === comment.commentId
+                    ? { ...prevComment, commentText: editedCommentInput }
+                    : prevComment
+                )
+              : []
+          );
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(error.message);
+        }
+      }
+    }
+    console.log(`update comment`);
+    setShowEditedCommentInput(false);
+  };
+
   return (
     <div className="w-full bg-bgColorSecondary px-4 py-2 rounded-lg my-2">
       <div className="flex justify-between">
@@ -54,7 +105,7 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
           <div className="flex justify-center items-center gap-4">
             {auth.currentUser?.uid === comment.commentatorId && (
               <i
-                onClick={() => console.log(`update comment`)}
+                onClick={handleEditedCommentInputElement}
                 className="fa-solid fa-pen text-xs text-green-600 cursor-pointer
           hover:opacity-70 transition-opacity duration-300"
               ></i>
@@ -79,6 +130,37 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
         {comment.commentText}
         <p className="text-[0.6rem] text-gray-400">{comment.date}</p>
       </div>
+      {showEditedCommentInput && (
+        <div className="flex w-4/5 p-2 mt-2 bg-secondary rounded-xl">
+          <input
+            onKeyDown={(e: { key: string }) => {
+              if (e.key === "Enter") {
+                updateComment();
+              }
+            }}
+            onChange={handleEditedCommentInput}
+            value={editedCommentInput}
+            className="w-full pl-2 rounded-l-lg outline-none"
+            type="text"
+            placeholder="Enter Comment..."
+          />
+          <div
+            onClick={updateComment}
+            className="flex justify-center items-center bg-white px-2 rounded-r-lg hover:opacity-50 transition-opacity duration-300 cursor-pointer"
+          >
+            <i
+              onClick={() => {}}
+              className="fa-solid fa-location-arrow text-xl text-primary rotate-45"
+            />
+          </div>
+          <div className="flex justify-center items-center ms-2 rounded-lg hover:opacity-50 transition-opacity duration-300">
+            <i
+              onClick={handleEditedCommentInputElement}
+              className="fa-solid fa-rectangle-xmark text-2xl text-red-600 cursor-pointer"
+            ></i>
+          </div>
+        </div>
+      )}
       {isCommentOverflowing && (
         <div
           onClick={handleShowMoreCommentState}
