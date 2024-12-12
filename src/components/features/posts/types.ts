@@ -22,6 +22,9 @@ export type EditablePostValues = {
 };
 
 export type CommentsProps = {
+  postAuthorId?: string;
+  postId?: string;
+  commentId?: string;
   commentatorId: string;
   commentatorName?: string;
   commentText: string;
@@ -30,4 +33,5 @@ export type CommentsProps = {
 
 export type SingleCommentProps = {
   comment: CommentsProps;
+  setComments: React.Dispatch<React.SetStateAction<CommentsProps[] | null>>;
 };

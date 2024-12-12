@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { SingleCommentProps } from "./types";
+import { deleteDoc, doc } from "firebase/firestore";
+import { auth, db } from "../../../firebase/firebaseConfig";
 
-const Comment = ({ comment }: SingleCommentProps) => {
+const Comment = ({ comment, setComments }: SingleCommentProps) => {
   const [showMoreComment, setShowMoreComment] = useState<boolean>(false);
   const [isCommentOverflowing, setIsCommentOverflowing] =
     useState<boolean>(false);
@@ -15,15 +17,55 @@ const Comment = ({ comment }: SingleCommentProps) => {
     }
   }, []);
 
+  const deleteComment = async () => {
+    try {
+      const commentRef = doc(
+        db,
+        `posts/${comment.postAuthorId}/userPosts/${comment.postId}/comments/${comment.commentId}`
+      );
+      await deleteDoc(commentRef);
+      console.log("Comment deleted successfully");
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      }
+    } finally {
+      setComments((prevComments) =>
+        (prevComments ?? []).filter(
+          (prevComment) => prevComment.commentId !== comment.commentId
+        )
+      );
+    }
+  };
+
   return (
     <div className="w-full bg-bgColorSecondary px-4 py-2 rounded-lg my-2">
-      <div className="flex items-center gap-2">
-        <i className="fa-solid fa-user rounded-full text-xs">
-          {/* <img src="" alt="" /> */}
-        </i>
-        <p className="text-sm font-semibold text-primary">
-          {comment.commentatorName}
-        </p>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <i className="fa-solid fa-user rounded-full text-xs">
+            {/* <img src="" alt="" /> */}
+          </i>
+          <p className="text-sm font-semibold text-primary">
+            {comment.commentatorName}
+          </p>
+        </div>
+        {(auth.currentUser?.uid === comment.commentatorId ||
+          auth.currentUser?.uid === comment.postAuthorId) && (
+          <div className="flex justify-center items-center gap-4">
+            {auth.currentUser?.uid === comment.commentatorId && (
+              <i
+                onClick={() => console.log(`update comment`)}
+                className="fa-solid fa-pen text-xs text-green-600 cursor-pointer
+          hover:opacity-70 transition-opacity duration-300"
+              ></i>
+            )}
+            <i
+              onClick={deleteComment}
+              className="fa-solid fa-trash-can text-xs text-red-600 cursor-pointer 
+          hover:opacity-70 transition-opacity duration-300"
+            ></i>
+          </div>
+        )}
       </div>
       <div
         ref={commentRef}

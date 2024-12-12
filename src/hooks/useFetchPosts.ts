@@ -67,7 +67,9 @@ export const useFetchPosts = ({
           const comments = commentSnapshot.docs.map((comment) => {
             const commentData = comment.data();
             return {
-              id: comment.id,
+              postAuthorId: commentData.postAuthorId,
+              postId: commentData.postId,
+              commentId: comment.id,
               commentatorId: commentData.commentatorId,
               commentText: commentData.commentText,
               date: commentData.date,

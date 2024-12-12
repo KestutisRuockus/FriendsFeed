@@ -61,15 +61,22 @@ const Post = React.memo(
             );
 
             const newComment = {
+              postAuthorId: post.authorId,
+              postId: post.id,
               commentatorId: auth.currentUser.uid,
               commentatorName: auth.currentUser.displayName ?? "Anonymous",
               commentText: commentInput,
               date: formatDate(true),
             };
 
-            await addDoc(commentsRef, newComment);
+            const docRef = doc(commentsRef);
+            const commentId = docRef.id;
+            const commentWithUpdatedId = { ...newComment, commentId };
+            await addDoc(commentsRef, commentWithUpdatedId);
             setComments((prevComments) =>
-              prevComments ? [...prevComments, newComment] : [newComment]
+              prevComments
+                ? [commentWithUpdatedId, ...prevComments]
+                : [commentWithUpdatedId]
             );
           } else {
             console.error("User is not logged in, cannot add comment.");
@@ -202,10 +209,7 @@ const Post = React.memo(
         try {
           const docRef = doc(
             db,
-            "posts",
-            auth.currentUser?.uid,
-            "userPosts",
-            post.id
+            `posts/${auth.currentUser?.uid}/userPosts/${post.id}`
           );
           await deleteDoc(docRef);
           deletePostImageFromFirebaseStorage(post.imageURL);
@@ -330,7 +334,9 @@ const Post = React.memo(
           </div>
           <div className="w-full">
             {comments
-              ? comments.map((comment) => <Comment comment={comment} />)
+              ? comments.map((comment) => (
+                  <Comment comment={comment} setComments={setComments} />
+                ))
               : ""}
             <div className="flex w-full mt-2">
               <input

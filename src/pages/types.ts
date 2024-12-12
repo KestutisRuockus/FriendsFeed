@@ -12,7 +12,7 @@ export type PostProps = {
 };
 
 export type CommentsProps = {
-  id: string;
+  commentId: string;
   commentatorId: string;
   commentatorName?: string;
   commentText: string;
