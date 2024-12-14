@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import ErrorMessage from "../../components/shared/ErrorMessage";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { app, auth, db } from "../../firebase/firebaseConfig";
-import imageCompression from "browser-image-compression";
 import { v4 as uuidv4 } from "uuid";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import EmojiPickerComponent from "../../utils/EmojiPickerComponent";
+import { compressImage } from "../../utils/ImageUtils";
 
 const CreatePost = () => {
   const [title, setTitle] = useState<string>("");
@@ -13,7 +13,7 @@ const CreatePost = () => {
   const [image, setImage] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [uploading, setUploading] = useState<boolean>(false);
-  const [TemporaryImageUrl, setTemporaryImageURL] = useState<string>("");
+  const [temporaryImageUrl, setTemporaryImageURL] = useState<string>("");
   const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
 
   const createPost = async (e: { preventDefault: () => void }) => {
@@ -69,25 +69,14 @@ const CreatePost = () => {
       try {
         const compressedFile = await compressImage(chosenFile);
         setImage(compressedFile);
-        const TemporaryImageUrl = URL.createObjectURL(compressedFile);
-        setTemporaryImageURL(TemporaryImageUrl);
+        const temporaryUrl = URL.createObjectURL(compressedFile);
+        setTemporaryImageURL(temporaryUrl);
       } catch (error) {
         if (error instanceof Error) {
           console.log(error.message);
         }
       }
     }
-  };
-
-  const compressImage = async (file: File): Promise<File> => {
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 800,
-      useWebWorker: true,
-      fileType: "image/webp",
-    };
-
-    return await imageCompression(file, options);
   };
 
   const savePostsDetails = async (
@@ -137,7 +126,7 @@ const CreatePost = () => {
             />
           </div>
           <div>
-            {TemporaryImageUrl && <img src={TemporaryImageUrl} width={480} />}
+            {temporaryImageUrl && <img src={temporaryImageUrl} width={480} />}
           </div>
         </div>
         <label className="text-xs font-semibold text-primary px-1">

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import ErrorMessage from "../../shared/ErrorMessage";
-import imageCompression from "browser-image-compression";
 import { PostModalProps } from "./types";
 import { doc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebase/firebaseConfig";
-import { saveImageToFirebaseStorage } from "../../../utils/ImageUtils";
+import {
+  compressImage,
+  saveImageToFirebaseStorage,
+} from "../../../utils/ImageUtils";
 
 const PostModal = ({
   isOpen,
@@ -25,6 +27,8 @@ const PostModal = ({
 
   const parentRef = useRef<HTMLDivElement>(null);
 
+  console.log(newImage);
+
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setnewTitle(e.target.value);
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -42,7 +46,8 @@ const PostModal = ({
     if (newImage) {
       newData.imageURL = await saveImageToFirebaseStorage(
         currentImage,
-        newImage
+        newImage,
+        "posts"
       );
     }
 
@@ -75,17 +80,6 @@ const PostModal = ({
         setUploading(false);
       }
     }
-  };
-
-  const compressImage = async (file: File): Promise<File> => {
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 800,
-      useWebWorker: true,
-      fileType: "image/webp",
-    };
-
-    return await imageCompression(file, options);
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { ProfileProps } from "./../types";
-import Female from "../../assets/female.png";
-import Male from "../../assets/male.png";
-import Other from "../../assets/other.png";
+import Female from "../../assets/female.jpg";
+import Male from "../../assets/male.jpg";
+import Other from "../../assets/other.jpg";
 import Post from "../../components/features/posts/Post";
 import { auth, db } from "../../firebase/firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import ErrorMessage from "../../components/shared/ErrorMessage";
 import { useFetchPosts } from "../../hooks/useFetchPosts";
+import {
+  compressImage,
+  deletePostImageFromFirebaseStorage,
+  saveImageToFirebaseStorage,
+} from "../../utils/ImageUtils";
+import { updateProfile } from "firebase/auth";
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState<ProfileProps>({
@@ -19,6 +25,11 @@ const Profile = () => {
   });
   const [editMode, setEditMode] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [temporaryProfileImageUrl, setTemporaryProfileImageURL] =
+    useState<string>("");
+  const [isProfileImageRemoved, setIsProfileImageRemoved] =
+    useState<boolean>(false);
 
   const username = auth.currentUser?.displayName;
   const { posts, removeDeletedPostFromPostsStateById, updatePostsStateById } =
@@ -73,12 +84,26 @@ const Profile = () => {
   const setProfilePhoto = () => {
     let profilePhoto;
 
-    if (userDetails?.gender === "Male") {
-      profilePhoto = Male;
-    } else if (userDetails?.gender === "Female") {
-      profilePhoto = Female;
+    if (editMode && isProfileImageRemoved) {
+      if (userDetails?.gender === "Male") {
+        profilePhoto = Male;
+      } else if (userDetails?.gender === "Female") {
+        profilePhoto = Female;
+      } else {
+        profilePhoto = Other;
+      }
+    } else if (temporaryProfileImageUrl) {
+      profilePhoto = temporaryProfileImageUrl;
+    } else if (auth.currentUser?.photoURL) {
+      profilePhoto = auth.currentUser?.photoURL;
     } else {
-      profilePhoto = Other;
+      if (userDetails?.gender === "Male") {
+        profilePhoto = Male;
+      } else if (userDetails?.gender === "Female") {
+        profilePhoto = Female;
+      } else {
+        profilePhoto = Other;
+      }
     }
 
     return profilePhoto;
@@ -88,13 +113,14 @@ const Profile = () => {
     e.preventDefault();
     if (editMode) {
       fetchUserData();
-      console.log("Profile update cancelled");
       setErrorMessage("");
+      setIsProfileImageRemoved(false);
+      setTemporaryProfileImageURL("");
     }
     setEditMode(!editMode);
   };
 
-  const handleProfileUpdate = (e: { preventDefault: () => void }) => {
+  const handleProfileUpdate = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     const allInputFields = Object.values(userDetails).every(
@@ -105,6 +131,31 @@ const Profile = () => {
       try {
         const docRef = doc(db, "users", auth.currentUser!.uid);
         updateDoc(docRef, { ...userDetails });
+
+        if (profileImage) {
+          const newImageUrl = await saveImageToFirebaseStorage(
+            auth.currentUser?.photoURL,
+            profileImage,
+            "profileImages"
+          );
+
+          if (auth.currentUser) {
+            await updateProfile(auth.currentUser, {
+              photoURL: newImageUrl,
+            });
+          }
+        } else if (isProfileImageRemoved) {
+          if (auth.currentUser) {
+            const previousImageUrl = auth.currentUser.photoURL;
+            await updateProfile(auth.currentUser, {
+              photoURL: "",
+            });
+            await auth.currentUser.reload();
+            deletePostImageFromFirebaseStorage(previousImageUrl);
+          }
+          setIsProfileImageRemoved(false);
+        }
+
         console.log(`Profile updated successfully`);
         setErrorMessage("Profile updated successfully");
       } catch (error) {
@@ -121,16 +172,63 @@ const Profile = () => {
     setEditMode(!editMode);
   };
 
+  const handleProfileImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const chosenFile = e.target.files ? e.target.files[0] : undefined;
+    if (chosenFile) {
+      try {
+        const compressedFile = await compressImage(chosenFile);
+        setProfileImage(compressedFile);
+        const temporaryUrl = URL.createObjectURL(compressedFile);
+        setTemporaryProfileImageURL(temporaryUrl);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(error.message);
+        }
+      }
+    }
+  };
+
+  const removeProfileImage = () => {
+    setTemporaryProfileImageURL("");
+    setProfileImage(null);
+    setIsProfileImageRemoved(true);
+  };
+
   return (
     <main className="bg-bgColor w-full flex flex-col items-center gap-4 justify-start">
       <div className="w-4/5 h-fit mx-auto bg-bgColorSecondary rounded-lg flex flex-col lg:flex-row gap-4 items-center justify-center mt-20 px-2 sm:px-4 py-12">
-        <div className="w-full sm:w-4/5 lg:w-1/2 xl:w-1/3 flex justify-center">
-          <img
-            width={400}
-            className="w-full max-w-96 max-h-80"
-            src={setProfilePhoto()}
-            alt="profile photo"
-          />
+        <div className="flex flex-col justify-center items-center gap-2">
+          <div className="w-1/2 sm:w-4/5 lg:w-1/2 xl:w-1/3 flex justify-center">
+            <img
+              className="rounded-full w-full aspect-square"
+              src={
+                temporaryProfileImageUrl
+                  ? temporaryProfileImageUrl
+                  : setProfilePhoto()
+              }
+              alt="profile photo"
+            />
+          </div>
+          {editMode && (
+            <div className="w-4/5 px-2">
+              <label className="text-xs font-semibold text-primary">
+                Profile Image (optional):
+              </label>
+              <input
+                onChange={handleProfileImageChange}
+                type="file"
+                className="w-full outline-none mb-2 bg-none"
+              />
+              <button
+                onClick={removeProfileImage}
+                className="bg-primary text-secondary font-semibold px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500 w-full"
+              >
+                Remove Profile Image
+              </button>
+            </div>
+          )}
         </div>
         <form className="w-full sm:w-4/5 lg:w-1/2 xl:w-1/3 flex flex-col text-white">
           <label className="rounded-lg ps-2 font-semibold text-primary text-xs">
@@ -187,6 +285,7 @@ const Profile = () => {
                   value="Male"
                   checked={userDetails.gender === "Male"}
                   onChange={handleGenderCheckbox}
+                  className="cursor-pointer"
                 />
                 <label>Female</label>
                 <input
@@ -195,6 +294,7 @@ const Profile = () => {
                   value="Female"
                   checked={userDetails.gender === "Female"}
                   onChange={handleGenderCheckbox}
+                  className="cursor-pointer"
                 />
                 <label>Other</label>
                 <input
@@ -203,6 +303,7 @@ const Profile = () => {
                   value="Other"
                   checked={userDetails.gender === "Other"}
                   onChange={handleGenderCheckbox}
+                  className="cursor-pointer"
                 />
               </div>
             )}
@@ -210,14 +311,14 @@ const Profile = () => {
           <div className="flex justify-center gap-4 text-white">
             <button
               onClick={toggleEditMode}
-              className="bg-primary px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500"
+              className="bg-primary text-secondary font-semibold px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500"
             >
               {editMode ? "Cancel Editing" : "Edit Profile"}
             </button>
             {editMode && (
               <button
                 onClick={handleProfileUpdate}
-                className="bg-primary px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500"
+                className="bg-primary text-secondary font-semibold px-2 py-1 rounded-lg hover:bg-opacity-60 transition-colors duration-500"
               >
                 Save Profile
               </button>

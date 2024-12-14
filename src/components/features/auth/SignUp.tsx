@@ -166,36 +166,39 @@ const SignUp = ({
           placeholder="Your Location"
         />
         <label className="lg:w-1/3 w-2/3 lg:text-end text-start">Gender:</label>
-        <div className="flex flex-wrap gap-1 lg:w-1/2 w-2/3 m-auto">
+        <div className="flex flex-wrap gap-4 lg:w-1/2 w-2/3 m-auto">
           <label>
             <input
               type="radio"
               name="gender"
-              value="Male"
+              value="male"
               checked={formState.gender === "male"}
               onChange={handleInputsChange}
+              className="cursor-pointer"
             />
-            Male
+            {` Male`}
           </label>
           <label>
             <input
               type="radio"
               name="gender"
-              value="Female"
+              value="female"
               checked={formState.gender === "female"}
               onChange={handleInputsChange}
+              className="cursor-pointer"
             />
-            Female
+            {` Female`}
           </label>
           <label>
             <input
               type="radio"
               name="gender"
-              value="Other"
+              value="other"
               checked={formState.gender === "other"}
               onChange={handleInputsChange}
+              className="cursor-pointer"
             />
-            Other
+            {` Other`}
           </label>
         </div>
         <div className="flex flex-wrap gap-4 lg:mt-0 mt-6 m-auto px-10">

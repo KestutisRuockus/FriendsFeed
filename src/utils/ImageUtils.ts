@@ -7,6 +7,7 @@ import {
 } from "firebase/storage";
 import { app, auth } from "../firebase/firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
+import imageCompression from "browser-image-compression";
 
 export const deletePostImageFromFirebaseStorage = async (
   imgUrl: string | null
@@ -26,13 +27,14 @@ export const deletePostImageFromFirebaseStorage = async (
 
 export const saveImageToFirebaseStorage = async (
   currentImage: string | null = null,
-  newImage: File
+  newImage: File,
+  dbCollectionName: string
 ) => {
   const imageId = uuidv4();
   const storage = getStorage(app);
   const storageRef = ref(
     storage,
-    `posts/${auth.currentUser?.uid}/${imageId}-${newImage?.name
+    `${dbCollectionName}/${auth.currentUser?.uid}/${imageId}-${newImage?.name
       .replace(/\s+/g, "")
       .replace(/[^\w.-]+/g, "-")}`
   );
@@ -42,4 +44,15 @@ export const saveImageToFirebaseStorage = async (
   }
   const downloadUrl = await getDownloadURL(storageRef);
   return downloadUrl;
+};
+
+export const compressImage = async (file: File): Promise<File> => {
+  const options = {
+    maxSizeMB: 0.5,
+    maxWidthOrHeight: 800,
+    useWebWorker: true,
+    fileType: "image/webp",
+  };
+
+  return await imageCompression(file, options);
 };
