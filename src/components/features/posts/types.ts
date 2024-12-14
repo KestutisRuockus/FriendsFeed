@@ -26,6 +26,7 @@ export type CommentsProps = {
   postId?: string;
   commentId?: string;
   commentatorId: string;
+  commentatorProfileImage: string;
   commentatorName?: string;
   commentText: string;
   date: string;

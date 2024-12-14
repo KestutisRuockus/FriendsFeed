@@ -1,0 +1,25 @@
+@keyframes text-loading {
+  0% {
+    color: hsl(0, 0%, 100%);
+  }
+  100% {
+    color: hsl(0, 0%, 0%);
+  }
+}
+
+.loading-animation {
+  animation: img-loading 1s linear infinite alternate;
+}
+
+.loading-text-animation {
+  animation: text-loading 1s linear infinite alternate;
+}
+
+@keyframes img-loading {
+  0% {
+    background-color: hsl(200, 20%, 70%);
+  }
+  100% {
+    background-color: hsl(200, 20%, 95%);
+  }
+}

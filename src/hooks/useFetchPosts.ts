@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebaseConfig";
 import { PostProps } from "../pages/types";
+import { getDownloadURL, getStorage, list, ref } from "firebase/storage";
 
 export const useFetchPosts = ({
   username = null,
@@ -64,17 +65,23 @@ export const useFetchPosts = ({
           );
           const commentSnapshot = await getDocs(commentsRef);
 
-          const comments = commentSnapshot.docs.map((comment) => {
-            const commentData = comment.data();
-            return {
-              postAuthorId: commentData.postAuthorId,
-              postId: commentData.postId,
-              commentId: comment.id,
-              commentatorId: commentData.commentatorId,
-              commentText: commentData.commentText,
-              date: commentData.date,
-            };
-          });
+          const comments = await Promise.all(
+            commentSnapshot.docs.map(async (comment) => {
+              const commentData = comment.data();
+              const commentatorProfileImage = await getProfileImageByUserId(
+                commentData.commentatorId
+              );
+              return {
+                postAuthorId: commentData.postAuthorId,
+                postId: commentData.postId,
+                commentId: comment.id,
+                commentatorProfileImage,
+                commentatorId: commentData.commentatorId,
+                commentText: commentData.commentText,
+                date: commentData.date,
+              };
+            })
+          );
 
           const sortedComments = comments.sort((a, b) => {
             return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -83,6 +90,7 @@ export const useFetchPosts = ({
           return {
             id: doc.id,
             authorId: docData.authorId,
+            authorProfileImage: await getProfileImageByUserId(docData.authorId),
             title: docData.title,
             content: docData.content,
             date: docData.date.seconds,
@@ -155,6 +163,27 @@ export const useFetchPosts = ({
         post.id === postId ? { ...post, ...newPostValues } : post
       )
     );
+  };
+
+  const getProfileImageByUserId = async (userId: string) => {
+    try {
+      const storage = getStorage();
+      const folderRef = ref(storage, `/profileImages/${userId}/`);
+
+      const { items } = await list(folderRef, { maxResults: 1 });
+
+      if (items.length > 0) {
+        const firstItemRef = items[0];
+        const url = await getDownloadURL(firstItemRef);
+        return url;
+      } else {
+        console.warn("No profile image found in the folder.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching profile image:", error);
+      return null;
+    }
   };
 
   useEffect(() => {

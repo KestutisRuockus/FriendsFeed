@@ -14,6 +14,7 @@ import {
   saveImageToFirebaseStorage,
 } from "../../utils/ImageUtils";
 import { updateProfile } from "firebase/auth";
+import LoadingPostSkeleton from "../../utils/LoadingPostSkeleton";
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState<ProfileProps>({
@@ -32,10 +33,14 @@ const Profile = () => {
     useState<boolean>(false);
 
   const username = auth.currentUser?.displayName;
-  const { posts, removeDeletedPostFromPostsStateById, updatePostsStateById } =
-    useFetchPosts({
-      username,
-    });
+  const {
+    posts,
+    loading,
+    removeDeletedPostFromPostsStateById,
+    updatePostsStateById,
+  } = useFetchPosts({
+    username,
+  });
 
   const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) =>
     setUserDetails({ ...userDetails, name: e.target.value });
@@ -195,6 +200,10 @@ const Profile = () => {
     setProfileImage(null);
     setIsProfileImageRemoved(true);
   };
+
+  if (loading) {
+    return <LoadingPostSkeleton />;
+  }
 
   return (
     <main className="bg-bgColor w-full flex flex-col items-center gap-4 justify-start">

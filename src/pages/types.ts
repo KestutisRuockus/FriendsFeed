@@ -9,9 +9,11 @@ export type PostProps = {
   dislikesCount: number;
   imageURL: string | null;
   comments: CommentsProps | null;
+  authorProfileImage: string;
 };
 
 export type CommentsProps = {
+  commentatorProfileImage: string;
   commentId: string;
   commentatorId: string;
   commentatorName?: string;

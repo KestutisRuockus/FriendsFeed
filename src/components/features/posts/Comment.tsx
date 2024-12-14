@@ -101,9 +101,15 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
     <div className="w-full bg-bgColorSecondary px-4 py-2 rounded-lg my-2">
       <div className="flex justify-between">
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-user rounded-full text-xs">
-            {/* <img src="" alt="" /> */}
-          </i>
+          {comment.commentatorProfileImage ? (
+            <img
+              src={comment.commentatorProfileImage}
+              alt="profile image"
+              className="rounded-full w-4 h-4"
+            />
+          ) : (
+            <i className="fa-solid fa-user rounded-full"></i>
+          )}
           <p className="text-sm font-semibold text-primary">
             {comment.commentatorName}
           </p>

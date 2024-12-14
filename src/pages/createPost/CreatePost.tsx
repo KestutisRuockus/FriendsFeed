@@ -94,6 +94,7 @@ const CreatePost = () => {
     await addDoc(postsCollectionRef, {
       authorId: auth.currentUser?.uid,
       author: auth.currentUser?.displayName,
+      authorProfileImage: auth.currentUser?.photoURL,
       title,
       content,
       imageURL: imageURL || "",

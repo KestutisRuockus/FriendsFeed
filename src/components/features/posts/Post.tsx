@@ -1,5 +1,4 @@
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-// import EmojiPicker from "emoji-picker-react";
 import EmojiPickerComponent from "../../../utils/EmojiPickerComponent";
 import Comment from "./Comment";
 import { PostComponentProps } from "../../../pages/types";
@@ -65,6 +64,7 @@ const Post = React.memo(
               postId: post.id,
               commentatorId: auth.currentUser.uid,
               commentatorName: auth.currentUser.displayName ?? "Anonymous",
+              commentatorProfileImage: auth.currentUser.photoURL ?? "",
               commentText: commentInput,
               date: formatDate(true),
             };
@@ -218,9 +218,15 @@ const Post = React.memo(
     }, [editablePostValues.content]);
 
     useEffect(() => {
+      const updatedComments =
+        post.comments?.map((comment) => ({
+          ...comment,
+          commentatorProfileImage: comment.commentatorProfileImage ?? "",
+        })) || null;
+
       setLikesCount(post.likesCount);
       setDislikesCount(post.dislikesCount);
-      setComments(post.comments);
+      setComments(updatedComments);
     }, [post.comments, post.dislikesCount, post.likesCount]);
 
     return (
@@ -245,9 +251,16 @@ const Post = React.memo(
             <div className="flex flex-col items-center">
               <div className="flex h-full gap-2 justify-center items-center">
                 <div className="w-full flex justify-center items-center gap-2">
-                  <i className="fa-solid fa-user rounded-full">
-                    {/* <img src="" alt="" /> */}
-                  </i>
+                  {post.authorProfileImage ? (
+                    <img
+                      src={post.authorProfileImage}
+                      alt="profile image"
+                      className="rounded-full w-9 h-9"
+                    />
+                  ) : (
+                    <i className="fa-solid fa-user rounded-full"></i>
+                  )}
+
                   <div className="flex flex-col mr-6">
                     <div>{post.author}</div>
                     <div className="italic">{formatDate()}</div>
