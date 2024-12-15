@@ -45,7 +45,7 @@ const LogIn = ({
 
   return (
     <div
-      className={`md:w-1/2 w-full bg-secondary flex flex-col justify-center items-center py-16 md:rounded-r-xl md:rounded-none rounded-xl 
+      className={`bg-gradient-to-r from-extraColor to-bgColorSecondary md:w-1/2 w-full flex flex-col justify-center items-center py-16 md:rounded-r-xl md:rounded-none rounded-xl 
                     ${
                       isRegistrationComponent ? "opacity-0" : "opacity-100"
                     } transition-opacity duration-500 ease-in-out animate-fade-in`}

@@ -12,7 +12,7 @@ const FriendsList = () => {
 
   return (
     <aside
-      className={`md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
+      className={`pt-[80px] md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
         ${collapsedFriendList ? "md:max-w-12" : ""}`}
     >
       <div
