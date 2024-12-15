@@ -98,7 +98,7 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
   };
 
   return (
-    <div className="w-full bg-bgColorSecondary px-4 py-2 rounded-lg my-2">
+    <div className="w-full bg-secondary px-4 py-2 rounded-lg my-2">
       <div className="flex justify-between">
         <div className="flex items-center gap-2">
           {comment.commentatorProfileImage ? (
@@ -141,7 +141,7 @@ const Comment = ({ comment, setComments }: SingleCommentProps) => {
                     : "max-h-[3rem]"
                 }`}
       >
-        {comment.commentText}
+        <p className="text-primary">{comment.commentText}</p>
         <p className="text-[0.6rem] text-gray-400">{comment.date}</p>
       </div>
       {showEditedCommentInput && (

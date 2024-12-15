@@ -13,7 +13,7 @@ const Navbar = () => {
       <NavLink
         key={index}
         to={link.path}
-        className={`text-primary font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
+        className={`text-secondary font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
           transition-all duration-500 ease-in-out`}
       >
         {link.name}
@@ -35,7 +35,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex w-full h-[68px] justify-between items-center py-4 bg-secondary relative transition-all duration-500 ease-in-out">
+    <nav className="bg-gradient-to-r from-bgColorSecondary to-bgColorExtra flex w-full h-[68px] justify-between items-center py-4 relative transition-all duration-500 ease-in-out">
       <img
         width={52}
         src={Logo}
@@ -53,11 +53,11 @@ const Navbar = () => {
         className={`w-full flex md:flex-row flex-col justify-end max-md:gap-2 max-md:py-8 items-center
           max-md:absolute z-10 ${
             isOpen ? "left-0" : "max-md:-left-full"
-          } top-0 transition-all duration-500 bg-secondary rounded-br-xl`}
+          } top-0 transition-all duration-500 rounded-br-xl`}
       >
         {navLinks.map((navLink, index) => createNavLink(navLink, index))}
         <button
-          className="text-primary text-nowrap font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
+          className="text-secondary text-nowrap font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 
             transition-all duration-500 ease-in-out"
           onClick={handleLogout}
         >

@@ -39,7 +39,7 @@ const Home = () => {
   );
 
   return (
-    <main className="bg-bgColor w-full flex gap-4 flex-col items-center py-8">
+    <main className="bg-gradient-to-r from-bgColor to-bgColorSecondary w-full flex gap-4 pb-8 flex-col items-center py-8">
       {posts.map((post, index) => (
         <div
           key={post.id}

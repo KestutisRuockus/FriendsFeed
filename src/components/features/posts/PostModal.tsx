@@ -118,7 +118,7 @@ const PostModal = ({
       ref={parentRef}
       className="w-full absolute inset-0 flex items-center justify-center z-10 h-screen overflow-y-auto"
     >
-      <form className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4 relative max-h-[700px]">
+      <form className="bg-gradient-to-r from-extraColor to-bgColorSecondary w-11/12 sm:w-4/5 lg:w-3/5 flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4 relative max-h-[700px]">
         <i
           onClick={onClose}
           className="fa-solid fa-square-xmark absolute right-2 top-2 text-3xl text-primary cursor-pointer hover:opacity-70 transition-opacity duration-300"

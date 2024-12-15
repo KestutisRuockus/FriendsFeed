@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ProfileProps } from "./../types";
 import Female from "../../assets/female.jpg";
 import Male from "../../assets/male.jpg";
@@ -36,6 +36,8 @@ const Profile = () => {
   const {
     posts,
     loading,
+    hasMore,
+    fetchPosts,
     removeDeletedPostFromPostsStateById,
     updatePostsStateById,
   } = useFetchPosts({
@@ -52,6 +54,31 @@ const Profile = () => {
     setUserDetails({ ...userDetails, location: e.target.value });
   const handleGenderCheckbox = (e: React.ChangeEvent<HTMLInputElement>) =>
     setUserDetails({ ...userDetails, gender: e.target.value });
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const lastPostRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (loading) {
+        return;
+      }
+
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          fetchPosts();
+        }
+      });
+
+      if (node) {
+        observer.current.observe(node);
+      }
+    },
+    [loading, hasMore, fetchPosts]
+  );
 
   const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
@@ -201,13 +228,9 @@ const Profile = () => {
     setIsProfileImageRemoved(true);
   };
 
-  if (loading) {
-    return <LoadingPostSkeleton />;
-  }
-
   return (
-    <main className="bg-bgColor w-full flex flex-col items-center gap-4 justify-start">
-      <div className="w-4/5 h-fit mx-auto bg-bgColorSecondary rounded-lg flex flex-col lg:flex-row gap-4 items-center justify-center mt-20 px-2 sm:px-4 py-12">
+    <main className="bg-gradient-to-r from-bgColor to-bgColorSecondary w-full flex flex-col items-center gap-4 pb-8 justify-start">
+      <div className="w-4/5 h-fit mx-auto rounded-lg flex flex-col lg:flex-row gap-4 items-center justify-center mt-20 px-2 sm:px-4 py-12">
         <div className="flex flex-col justify-center items-center gap-2">
           <div className="w-1/2 sm:w-4/5 lg:w-1/2 xl:w-1/3 flex justify-center">
             <img
@@ -336,17 +359,23 @@ const Profile = () => {
           {<ErrorMessage message={errorMessage} />}
         </form>
       </div>
-      <h2>Your posts</h2>
-      {posts.map((post) => (
-        <Post
+      <h2 className="text-3xl font-bold text-primary">YOUR POSTS</h2>
+      {posts.map((post, index) => (
+        <div
           key={post.id}
-          post={post}
-          removeDeletedPostFromPostsStateById={
-            removeDeletedPostFromPostsStateById
-          }
-          updatePostsStateById={updatePostsStateById}
-        />
+          ref={index === posts.length - 1 ? lastPostRef : null}
+          className="w-full flex justify-center"
+        >
+          <Post
+            post={post}
+            removeDeletedPostFromPostsStateById={
+              removeDeletedPostFromPostsStateById
+            }
+            updatePostsStateById={updatePostsStateById}
+          />
+        </div>
       ))}
+      {loading && <LoadingPostSkeleton />}
     </main>
   );
 };

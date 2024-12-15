@@ -247,7 +247,7 @@ const Post = React.memo(
     const isPortrait = imageDimensions.height > imageDimensions.width;
 
     return (
-      <div className="sm:w-4/5 w-11/12 flex flex-col gap-6 border-8 rounded-lg border-secondary relative">
+      <div className="sm:w-4/5 w-11/12 flex flex-col gap-6 border-8 rounded-lg border-bgColorExtra border-opacity-20 relative">
         {isModalOpen && (
           <PostModal
             isOpen={true}

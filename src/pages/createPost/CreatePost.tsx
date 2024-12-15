@@ -109,11 +109,11 @@ const CreatePost = () => {
   };
 
   return (
-    <main className="bg-bgColor w-full min-h-screen flex flex-col items-center py-8">
+    <main className="bg-gradient-to-r from-bgColor to-bgColorSecondary w-full min-h-screen flex flex-col items-center py-8">
       <h2 className="text-2xl font-bold text-primary">Create Post</h2>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4"
+        className="w-11/12 sm:w-4/5 lg:w-3/5 bg-gradient-to-r from-extraColor to-bgColorSecondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4"
       >
         <div className="flex flex-col-reverse md:flex-row justify-center items-end mb-6">
           <div>

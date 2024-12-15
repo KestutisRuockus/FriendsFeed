@@ -54,7 +54,7 @@ const Auth = () => {
   );
 
   return (
-    <div className="w-full min-h-screen py-20 bg-bgColor">
+    <div className="w-full min-h-screen py-20 bg-gradient-to-r from-bgColor to-bgColorSecondary">
       <div className="w-4/5 m-auto text-center flex md:flex-row flex-col justify-center relative">
         {formStructure()}
         {logoElement()}
