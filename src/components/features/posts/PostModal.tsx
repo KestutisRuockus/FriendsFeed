@@ -27,8 +27,6 @@ const PostModal = ({
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  console.log(newImage);
-
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setnewTitle(e.target.value);
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
@@ -118,9 +116,9 @@ const PostModal = ({
   return (
     <div
       ref={parentRef}
-      className="w-full absolute inset-0 flex items-center justify-center z-10"
+      className="w-full absolute inset-0 flex items-center justify-center z-10 h-screen overflow-y-auto"
     >
-      <form className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4 relative">
+      <form className="w-11/12 sm:w-4/5 lg:w-3/5 bg-secondary flex flex-col justify-center items-start border-2 border-primary rounded-lg p-8 max-[500px]:p-4 relative max-h-[700px]">
         <i
           onClick={onClose}
           className="fa-solid fa-square-xmark absolute right-2 top-2 text-3xl text-primary cursor-pointer hover:opacity-70 transition-opacity duration-300"
@@ -130,7 +128,7 @@ const PostModal = ({
             Edit Post
           </h2>
         </div>
-        <div className="flex flex-col-reverse md:flex-row justify-center items-end my-6">
+        <div className="flex flex-col-reverse justify-center items-end my-6">
           <div>
             <label className="text-xs font-semibold text-primary px-1">
               Image (optional):
@@ -142,7 +140,12 @@ const PostModal = ({
             />
           </div>
           <div>
-            {TemporaryImageUrl && <img src={TemporaryImageUrl} width={480} />}
+            {TemporaryImageUrl && (
+              <img
+                src={TemporaryImageUrl}
+                className="w-full max-w-96 max-h-60"
+              />
+            )}
           </div>
         </div>
         <label className="text-xs font-semibold text-primary px-1">
@@ -160,7 +163,7 @@ const PostModal = ({
         <textarea
           onChange={handleContentChange}
           value={newContent}
-          className="w-full h-60 rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
+          className="w-full min-h-28 rounded-lg px-2 py-1 outline-none bg-bgColorSecondary"
         />
         <button
           onClick={updatePost}

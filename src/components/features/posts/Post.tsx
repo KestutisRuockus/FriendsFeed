@@ -40,6 +40,10 @@ const Post = React.memo(
     const [dislikesCount, setDislikesCount] = useState<number>(0);
     const [comments, setComments] = useState<CommentsProps[] | null>(null);
     const [openEmojiPicker, setOpenEmojiPicker] = useState(false);
+    const [imageDimensions, setImageDimensions] = useState({
+      width: 0,
+      height: 0,
+    });
 
     const contentRef = useRef<HTMLDivElement>(null);
 
@@ -229,6 +233,19 @@ const Post = React.memo(
       setComments(updatedComments);
     }, [post.comments, post.dislikesCount, post.likesCount]);
 
+    useEffect(() => {
+      if (editablePostValues.imageURL) {
+        const img = new Image();
+        img.src = editablePostValues.imageURL;
+
+        img.onload = () => {
+          setImageDimensions({ width: img.width, height: img.height });
+        };
+      }
+    }, [editablePostValues.imageURL]);
+
+    const isPortrait = imageDimensions.height > imageDimensions.width;
+
     return (
       <div className="sm:w-4/5 w-11/12 flex flex-col gap-6 border-8 rounded-lg border-secondary relative">
         {isModalOpen && (
@@ -288,13 +305,17 @@ const Post = React.memo(
           </div>
         </div>
         {editablePostValues.imageURL && (
-          <div className="px-4 w-full max-w-[100%] sm:max-w-[400px] md:max-w-[600px] h-auto object-contain m-auto">
+          <div
+            className={`px-4 w-full max-w-[100%] sm:max-w-[400px] md:max-w-[600px] h-auto object-contain m-auto ${
+              isPortrait ? "max-h-[400px]" : "max-h-[600px]"
+            }`}
+          >
             <img
               src={
                 editablePostValues.imageURL ? editablePostValues.imageURL : ""
               }
               alt="post image"
-              className="m-auto w-full max-w-[600px]"
+              className="m-auto w-full h-full object-contain object-center"
             />
           </div>
         )}

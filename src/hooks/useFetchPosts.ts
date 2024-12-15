@@ -25,14 +25,18 @@ export const useFetchPosts = ({
   const [hasMore, setHasMore] = useState<boolean>(false);
 
   const fetchPosts = async (isInitialFetch = false) => {
-    if (loading || (!isInitialFetch && !hasMore)) return;
+    const recordsLimitPerFetch = 5;
+
+    if (loading || (!isInitialFetch && !hasMore)) {
+      return;
+    }
 
     setLoading(true);
     try {
       let q = query(
         collectionGroup(db, "userPosts"),
         orderBy("date", "desc"),
-        limit(5)
+        limit(recordsLimitPerFetch)
       );
 
       if (username) {
@@ -40,7 +44,7 @@ export const useFetchPosts = ({
           collectionGroup(db, "userPosts"),
           where("author", "==", username),
           orderBy("date", "desc"),
-          limit(5)
+          limit(recordsLimitPerFetch)
         );
       }
 
@@ -141,6 +145,7 @@ export const useFetchPosts = ({
         isInitialFetch ? updatedPosts : [...prev, ...updatedPosts]
       );
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+      setHasMore(querySnapshot.docs.length === recordsLimitPerFetch);
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);
@@ -195,6 +200,7 @@ export const useFetchPosts = ({
     posts,
     loading,
     hasMore,
+    fetchPosts,
     fetchMorePosts: () => fetchPosts(false),
     removeDeletedPostFromPostsStateById,
     updatePostsStateById,
