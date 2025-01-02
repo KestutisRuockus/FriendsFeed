@@ -280,7 +280,9 @@ const Post = React.memo(
 
                   <div className="flex flex-col mr-6">
                     <div>{post.author}</div>
-                    <div className="italic">{formatDate()}</div>
+                    <div className="italic">
+                      {formatDate(undefined, post.date)}
+                    </div>
                   </div>
                 </div>
                 {auth.currentUser?.displayName === post.author && (

@@ -8,6 +8,7 @@ export const formatDate = (isNewCommentDate = false, postDate = 0) => {
   const amOrPm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
   const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes} ${amOrPm}`;
+  console.log(formattedDateTime);
 
   return formattedDateTime;
 };

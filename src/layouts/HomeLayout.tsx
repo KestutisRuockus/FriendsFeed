@@ -7,7 +7,7 @@ const HomeLayout = () => {
   return (
     <>
       <Navbar />
-      <div className="flex flex-col-reverse md:flex-row min-h-screen">
+      <div className="flex flex-col-reverse md:flex-row min-h-screen pt-16">
         <Outlet />
         <FriendsList />
       </div>
