@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Friend from "./Friend";
 import useScreenWidth from "../../../hooks/useScreenWidth";
+import { useFetchUsers } from "../../../hooks/useFetchUsers";
 
 const FriendsList = () => {
   const screenWidth = useScreenWidth();
+
+  const { users, fetchUsers } = useFetchUsers();
+
+  useEffect(() => {
+    console.log("Calling fetchUsers...");
+    fetchUsers();
+  }, [fetchUsers]);
 
   const [collapsedFriendList, setCollapsedFriendList] =
     useState<boolean>(false);
@@ -12,8 +20,10 @@ const FriendsList = () => {
 
   return (
     <aside
-      className={`pt-[80px] md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
-        ${collapsedFriendList ? "md:max-w-12" : ""}`}
+      className={`md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
+        ${
+          collapsedFriendList ? "md:max-w-12" : "max-w-full"
+        } transition-all duration-200`}
     >
       <div
         className={`flex ${
@@ -65,22 +75,9 @@ const FriendsList = () => {
               screenWidth < 768 ? "h-[300px]" : "h-[90vh]"
             } overflow-hidden overflow-y-scroll`}
           >
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
-            <Friend />
+            {users.map((user) => (
+              <Friend user={user} />
+            ))}
           </div>
         </>
       )}
