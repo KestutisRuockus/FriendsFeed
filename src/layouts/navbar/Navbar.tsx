@@ -9,9 +9,19 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const scrollToTopIfCurrentPath = (path: string) => {
+    if (location.pathname === path) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   const createNavLink = (link: NavLinksProps, index: number) => {
     return (
       <NavLink
+        onClick={() => {
+          scrollToTopIfCurrentPath(link.path);
+          handleBarsIcon();
+        }}
         key={index}
         to={link.path}
         className={`text-secondary font-bold text-xl px-8 py-1 rounded-2xl hover:text-hover hover:scale-125 

@@ -7,6 +7,7 @@ import { auth } from "./firebase/firebaseConfig";
 import { User } from "firebase/auth";
 import Profile from "./pages/profile/Profile";
 import CreatePost from "./pages/createPost/CreatePost";
+import ScrollToTop from "./utils/ScrollToTop";
 
 function App() {
   const [authUser, setAuthUser] = useState<User | null>(null);
@@ -17,6 +18,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={authUser ? <HomeLayout /> : <Auth />}>
           <Route index element={<Home />} />
