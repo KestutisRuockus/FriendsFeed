@@ -2,28 +2,41 @@ import { useEffect, useState } from "react";
 import Friend from "./Friend";
 import useScreenWidth from "../../../hooks/useScreenWidth";
 import { useFetchUsers } from "../../../hooks/useFetchUsers";
+import { FriendProps } from "./types";
+import ConversationManager from "../conversation/ConversationManager";
 
 const FriendsList = () => {
-  const screenWidth = useScreenWidth();
-
-  const { users, fetchUsers } = useFetchUsers();
-
-  useEffect(() => {
-    console.log("Calling fetchUsers...");
-    fetchUsers();
-  }, [fetchUsers]);
-
   const [collapsedFriendList, setCollapsedFriendList] =
     useState<boolean>(false);
+  const [openConversations, setOpenConversations] = useState<FriendProps[]>([]);
+
+  const screenWidth = useScreenWidth();
+  const { users, fetchUsers } = useFetchUsers();
 
   const handleCollapseBtn = () => setCollapsedFriendList(!collapsedFriendList);
+
+  const addToOpenConversations = (user: FriendProps) => {
+    if (!openConversations.some((usr) => usr.userId === user.userId)) {
+      setOpenConversations((prev) => [user, ...prev]);
+    }
+  };
+
+  const removeActiveConversation = (id: string) => {
+    setOpenConversations((prev) =>
+      prev.filter((conversation) => conversation.userId !== id)
+    );
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   return (
     <aside
       className={`md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
         ${
           collapsedFriendList ? "md:max-w-12" : "max-w-full"
-        } transition-all duration-200`}
+        } transition-all duration-200 relative`}
     >
       <div
         className={`flex ${
@@ -76,10 +89,20 @@ const FriendsList = () => {
             } overflow-hidden overflow-y-scroll`}
           >
             {users.map((user) => (
-              <Friend user={user} />
+              <Friend
+                key={user.userId}
+                user={user}
+                onSelectUser={addToOpenConversations}
+              />
             ))}
           </div>
         </>
+      )}
+      {openConversations.length > 0 && (
+        <ConversationManager
+          activeConversations={openConversations}
+          removeActiveConversation={removeActiveConversation}
+        />
       )}
     </aside>
   );

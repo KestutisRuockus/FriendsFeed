@@ -1,14 +1,13 @@
-type FriendProps = {
-  user: {
-    userId: string;
-    name: string;
-  };
-};
+import { UserProps } from "./types";
 
-const Friend = ({ user }: FriendProps) => {
+const Friend = ({ user, onSelectUser }: UserProps) => {
+  const handleClick = () => {
+    onSelectUser(user);
+  };
+
   return (
     <div
-      onClick={() => console.log(user.name, user.userId)}
+      onClick={handleClick}
       className="flex items-center gap-3 rounded-lg hover:bg-bgColor hover:bg-opacity-80 transition-all duration-300 ease-in-out px-2 overflow-hidden"
     >
       <div className="w-2 h-2 bg-red-600 rounded-full"></div>
