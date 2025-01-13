@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ConversationsProps } from "./types";
+import ConversationWIndow from "./ConversationWIndow";
 
 const ConversationTab = ({
   user,
@@ -7,8 +9,16 @@ const ConversationTab = ({
   user: ConversationsProps;
   removeActiveConversation: (id: string) => void;
 }) => {
+  const [isElementOpen, setIsElementOpen] = useState<boolean>(false);
+
+  const handleToggleElement = () => setIsElementOpen(!isElementOpen);
+
   return (
-    <div className="flex justify-between items-center bg-bgColor ps-2 w-[150px] cursor-pointer hover:opacity-70 transition-opacity duration-300">
+    <div
+      onClick={handleToggleElement}
+      className="flex justify-between items-center bg-bgColor ps-2 w-[150px] cursor-pointer hover:bg-bgColorSecondary transition-colors duration-300"
+    >
+      {isElementOpen && <ConversationWIndow />}
       <p className="text-primary text-sm font-bold truncate overflow-hidden whitespace-nowrap">
         {user.name}
       </p>

@@ -13,7 +13,7 @@ const OverflowConversationTab = ({
     <div
       onClick={() => swapOverflowWithVisible(user)}
       key={user.userId}
-      className="flex justify-between items-center gap-4 ps-4 pe-2 py-2 text-secondary cursor-pointer bg-bgColorExtra hover:bg-bgColor hover:text-primary transition-colors duration-300"
+      className="flex justify-between items-center gap-4 w-[200px] ps-4 pe-2 py-2 text-secondary cursor-pointer bg-bgColorExtra hover:bg-bgColor hover:text-primary transition-colors duration-300"
     >
       <p className="text-sm font-bold truncate overflow-hidden whitespace-nowrap">
         {user.name}
