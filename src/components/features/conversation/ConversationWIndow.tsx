@@ -3,35 +3,6 @@ import EmojiPickerComponent from "../../../utils/EmojiPickerComponent";
 import { ConversationWindowProps, Messages } from "./types";
 import { auth } from "../../../firebase/firebaseConfig";
 
-const SenderBubble = ({
-  content,
-  timestamp,
-}: {
-  content: string;
-  timestamp: Date | undefined;
-}) => (
-  <div className="bg-bgColorSecondary text-primary border-2 border-bgColorExtra w-fit max-w-[67%] px-2 py-1 mb-4 mr-auto rounded-t-xl rounded-br-xl">
-    <p className="text-xs text-slate-500">
-      {timestamp ? timestamp.toLocaleString() : ""}
-    </p>
-    <div className="text-sm">{content}</div>
-  </div>
-);
-const ReceiverBubble = ({
-  content,
-  timestamp,
-}: {
-  content: string;
-  timestamp: Date | undefined;
-}) => (
-  <div className="bg-bgColor text-primar border-2 border-bgColorExtra w-fit max-w-[67%] px-2 py-1 mb-4 ml-auto rounded-t-xl rounded-bl-xl">
-    <p className="text-xs text-slate-500">
-      {timestamp ? timestamp.toLocaleString() : ""}
-    </p>
-    <div className="text-sm">{content}</div>
-  </div>
-);
-
 const NoMessagesComponent = () => <div>There are no messages</div>;
 
 const ConversationWIndow = ({
@@ -39,17 +10,91 @@ const ConversationWIndow = ({
   senderId,
   username,
   messages,
+  updateMessage,
+  deleteMessage,
 }: ConversationWindowProps) => {
   const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
   const [messageInput, setMessageInput] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Messages[] | null>(null);
+  const [isEditingMode, setIsEditingMode] = useState<boolean>(false);
+  const [editingMessageId, setEditingMessageId] = useState<string>("");
+  const [previousMessageContent, setPreviousMessageContent] =
+    useState<string>("");
+
+  const SenderBubble = ({
+    content,
+    timestamp,
+  }: {
+    content: string;
+    timestamp: Date | undefined;
+  }) => (
+    <div className="bg-bgColorSecondary text-primary border-2 border-bgColorExtra w-fit max-w-[67%] px-2 py-1 mb-4 mr-auto rounded-t-xl rounded-br-xl">
+      <p className="text-xs text-slate-500">
+        {timestamp ? timestamp.toLocaleString() : ""}
+      </p>
+      <div className="text-sm">{content}</div>
+    </div>
+  );
+
+  const ReceiverBubble = ({
+    content,
+    timestamp,
+    messageId,
+  }: {
+    content: string;
+    timestamp: Date | undefined;
+    messageId: string;
+  }) => (
+    <div className="bg-bgColor text-primar border-2 border-bgColorExtra w-fit max-w-[67%] ps-2 pe-0 py-1 mb-4 ml-auto rounded-t-xl rounded-bl-xl">
+      <div className="flex justify-center items-center gap-1 pr-1">
+        <p className="text-xs text-slate-500 me-4">
+          {timestamp ? timestamp.toLocaleString() : ""}
+        </p>
+        <i
+          onClick={() => deleteMessage(messageId)}
+          className="fa-solid fa-trash-can text-xs text-red-600 cursor-pointer 
+                                  hover:opacity-70 transition-opacity duration-300"
+        ></i>
+        <i
+          onClick={() => editMessage(content, messageId)}
+          className="fa-solid fa-pen text-xs text-green-600 cursor-pointer
+                                  hover:opacity-70 transition-opacity duration-300"
+        ></i>
+      </div>
+      <div className="text-sm">{content}</div>
+    </div>
+  );
+
+  const editMessage = (content: string, messageId: string) => {
+    console.log("editMessage");
+    setEditingMessageId(messageId);
+    setPreviousMessageContent(content);
+    setMessageInput(content);
+    setIsEditingMode(true);
+    scrollToConversationWindowBottom();
+  };
+
+  const cancelEditMode = () => {
+    setIsEditingMode(false);
+    setMessageInput("");
+  };
 
   const handleEmojiSelect = (emoji: string) => {
-    setMessageInput(messageInput + emoji);
+    setPreviousMessageContent(messageInput + emoji);
   };
 
   const handleMessageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageInput(e.target.value);
+  };
+
+  const scrollToConversationWindowBottom = () => {
+    const container = document.getElementById("message-container");
+    if (container) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   const handleSend = async () => {
@@ -57,16 +102,12 @@ const ConversationWIndow = ({
       return;
     }
 
-    await sendMessage(messageInput, senderId);
-
-    const NewMessage: Messages = {
-      id: Date.now().toString(),
-      content: messageInput,
-      sender: senderId,
-      timestamp: new Date(),
-    };
-
-    setAllMessages((prevMessages) => [...(prevMessages || []), NewMessage]);
+    if (isEditingMode && editingMessageId) {
+      updateMessage(messageInput, editingMessageId);
+      setIsEditingMode(false);
+    } else {
+      await sendMessage(messageInput, senderId);
+    }
 
     setMessageInput("");
   };
@@ -84,13 +125,7 @@ const ConversationWIndow = ({
   }, [messages]);
 
   useEffect(() => {
-    const container = document.getElementById("message-container");
-    if (container) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: "smooth",
-      });
-    }
+    scrollToConversationWindowBottom();
   }, [allMessages]);
 
   return (
@@ -117,6 +152,7 @@ const ConversationWIndow = ({
               <ReceiverBubble
                 content={message.content}
                 timestamp={message.timestamp}
+                messageId={message.id}
               ></ReceiverBubble>
             ) : (
               <SenderBubble
@@ -125,6 +161,23 @@ const ConversationWIndow = ({
               ></SenderBubble>
             )
           )
+        )}
+        {isEditingMode && (
+          <div className="flex justify-between items-center bg-gray-100 ps-4 rounded-lg max-w-full">
+            <div className="font-bold text-xs text-gray-400 overflow-hidden whitespace-nowrap flex items-center">
+              Editing
+              <span className="fitalic text-sm overflow-hidden text-ellipsis whitespace-nowrap inline-block max-w-[70%] truncate">
+                {` " ${previousMessageContent} " `}
+              </span>
+              message
+            </div>
+            <div
+              onClick={cancelEditMode}
+              className="text-xs me-2 px-2 text-gray-400 hover:bg-black transition-colors duration-300 cursor-pointer rounded-lg h-fit w-fit py-1"
+            >
+              Cancel
+            </div>
+          </div>
         )}
       </div>
       <div className="flex items-center h-[9%] w-full rounded-bl-lg bg-bgColorExtra">

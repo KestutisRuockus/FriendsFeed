@@ -13,7 +13,10 @@ const ConversationTab = ({
 }) => {
   const [isElementOpen, setIsElementOpen] = useState<boolean>(false);
 
-  const { sendMessage, messages } = useChat(auth.currentUser!.uid, user.userId);
+  const { sendMessage, messages, updateMessage, deleteMessage } = useChat(
+    auth.currentUser!.uid,
+    user.userId
+  );
 
   const handleToggleElement = () => setIsElementOpen(!isElementOpen);
   return (
@@ -27,6 +30,8 @@ const ConversationTab = ({
           senderId={auth.currentUser!.uid}
           username={user.name}
           messages={messages}
+          updateMessage={updateMessage}
+          deleteMessage={deleteMessage}
         />
       )}
       <p className="text-primary text-sm font-bold truncate overflow-hidden whitespace-nowrap">

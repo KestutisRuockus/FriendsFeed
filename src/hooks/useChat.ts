@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -52,6 +53,46 @@ const useChat = (userId1: string, userId2: string) => {
       await updateDoc(chatRef, {
         updatedAt: serverTimestamp(),
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      }
+    }
+  };
+
+  const updateMessage = async (
+    updatedMessageContent: string,
+    messageId: string
+  ) => {
+    try {
+      const messageRef = doc(db, "chats", chatData!.id, "messages", messageId);
+      await updateDoc(messageRef, {
+        content: updatedMessageContent,
+        timestamp: serverTimestamp(),
+      });
+
+      setMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.id === messageId
+            ? { ...message, content: updatedMessageContent }
+            : message
+        )
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        console.log(error.message);
+      }
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    try {
+      const messageRef = doc(db, "chats", chatData!.id, "messages", messageId);
+      await deleteDoc(messageRef);
+
+      setMessages((prevMessages) =>
+        prevMessages.filter((message) => message.id !== messageId)
+      );
     } catch (error) {
       if (error instanceof Error) {
         console.log(error.message);
@@ -118,7 +159,14 @@ const useChat = (userId1: string, userId2: string) => {
     fetchChat();
   }, [userId1, userId2]);
 
-  return { chatData, loading, sendMessage, messages };
+  return {
+    chatData,
+    loading,
+    sendMessage,
+    messages,
+    updateMessage,
+    deleteMessage,
+  };
 };
 
 export default useChat;

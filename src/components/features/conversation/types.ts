@@ -12,9 +12,15 @@ export type Messages = {
 
 type SendMessage = (content: string, senderId: string) => Promise<void>;
 
+type UpdateMessage = (updatedMessageContent: string, messageId: string) => void;
+
+type DeleteMessage = (messageId: string) => void;
+
 export type ConversationWindowProps = {
   sendMessage: SendMessage;
   senderId: string;
   username: string;
   messages: Messages[];
+  updateMessage: UpdateMessage;
+  deleteMessage: DeleteMessage;
 };
