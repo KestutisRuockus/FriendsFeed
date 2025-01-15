@@ -1,55 +1,45 @@
 import { useEffect, useState } from "react";
 import EmojiPickerComponent from "../../../utils/EmojiPickerComponent";
+import { ConversationWindowProps, Messages } from "./types";
+import { auth } from "../../../firebase/firebaseConfig";
 
-const messages = [
-  {
-    id: "225",
-    message:
-      "Hi, djhsalkjfhljkdsahfjlhasjlhf shdasjflsajlkhfkjash jdashjkhdkjashdkj",
-    sender: "me",
-  },
-  {
-    id: "331",
-    message:
-      "Hey! mauhsdhsajhj jkhd kjshajkdhksahdkjhsakjh kjhdkj hsakjh djkashkjdh ajsk",
-    sender: "other",
-  },
-  {
-    id: "225",
-    message:
-      "Hi, djhsalkjfhljkdsahfjlhasjlhf shdasjflsajlkhfkjash jdashjkhdkjashdkj",
-    sender: "me",
-  },
-  {
-    id: "331",
-    message:
-      "Hey! mauhsdhsajhj jkhd kjshajkdhksahdkjhsakjh kjhdkj hsakjh djkashkjdh ajsk",
-    sender: "other",
-  },
-];
-
-type Messages = {
-  id: string;
-  message: string;
-  sender: string;
-};
-
-const SenderBubble = ({ text }: { text: string }) => (
+const SenderBubble = ({
+  content,
+  timestamp,
+}: {
+  content: string;
+  timestamp: Date | undefined;
+}) => (
   <div className="bg-bgColorSecondary text-primary border-2 border-bgColorExtra w-fit max-w-[67%] px-2 py-1 mb-4 mr-auto rounded-t-xl rounded-br-xl">
-    <p className="text-xs text-slate-500">2025-01-02</p>
-    <div className="text-sm">{text}</div>
+    <p className="text-xs text-slate-500">
+      {timestamp ? timestamp.toLocaleString() : ""}
+    </p>
+    <div className="text-sm">{content}</div>
   </div>
 );
-const ReceiverBubble = ({ text }: { text: string }) => (
+const ReceiverBubble = ({
+  content,
+  timestamp,
+}: {
+  content: string;
+  timestamp: Date | undefined;
+}) => (
   <div className="bg-bgColor text-primar border-2 border-bgColorExtra w-fit max-w-[67%] px-2 py-1 mb-4 ml-auto rounded-t-xl rounded-bl-xl">
-    <p className="text-xs text-slate-500">2025-01-02</p>
-    <div className="text-sm">{text}</div>
+    <p className="text-xs text-slate-500">
+      {timestamp ? timestamp.toLocaleString() : ""}
+    </p>
+    <div className="text-sm">{content}</div>
   </div>
 );
 
 const NoMessagesComponent = () => <div>There are no messages</div>;
 
-const ConversationWIndow = () => {
+const ConversationWIndow = ({
+  sendMessage,
+  senderId,
+  username,
+  messages,
+}: ConversationWindowProps) => {
   const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
   const [messageInput, setMessageInput] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Messages[] | null>(null);
@@ -62,23 +52,28 @@ const ConversationWIndow = () => {
     setMessageInput(e.target.value);
   };
 
-  const sendMessage = () => {
-    if (messageInput.trim() !== "") {
-      setAllMessages([
-        ...(allMessages || []),
-        {
-          id: String(Math.random() * 1000000),
-          message: messageInput,
-          sender: "me",
-        },
-      ]);
-      setMessageInput("");
+  const handleSend = async () => {
+    if (messageInput.trim() === "") {
+      return;
     }
+
+    await sendMessage(messageInput, senderId);
+
+    const NewMessage: Messages = {
+      id: Date.now().toString(),
+      content: messageInput,
+      sender: senderId,
+      timestamp: new Date(),
+    };
+
+    setAllMessages((prevMessages) => [...(prevMessages || []), NewMessage]);
+
+    setMessageInput("");
   };
 
   const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      sendMessage();
+      sendMessage(messageInput, senderId);
     }
   };
 
@@ -86,7 +81,7 @@ const ConversationWIndow = () => {
     if (messages) {
       setAllMessages(messages);
     }
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
     const container = document.getElementById("message-container");
@@ -104,7 +99,7 @@ const ConversationWIndow = () => {
       className="absolute bottom-9 right-6 bg-secondary max-w-[90vw] w-[30rem] h-[30rem] border-2 border-bgColorExtra hover:opacity-100 rounded-t-lg rounded-bl-md cursor-default"
     >
       <div className="flex items-center justify-between bg-bgColorExtra text-bgColorSecondary px-2 py-1">
-        <h2 className="font-bold">Sender Name</h2>
+        <h2 className="font-bold">{username}</h2>
         <div className="flex gap-2">
           <p>_</p>
           <p>x</p>
@@ -114,14 +109,20 @@ const ConversationWIndow = () => {
         id="message-container"
         className="h-[85%] px-4 py-4 overflow-y-auto overflow-hidden border-b-2 border-bgColorExtra"
       >
-        {(allMessages ?? []).length === 0 ? (
+        {(allMessages?.length ?? 0) === 0 ? (
           <NoMessagesComponent />
         ) : (
           allMessages?.map((message) =>
-            message.sender === "me" ? (
-              <ReceiverBubble text={message.message}></ReceiverBubble>
+            message.sender === auth.currentUser?.uid ? (
+              <ReceiverBubble
+                content={message.content}
+                timestamp={message.timestamp}
+              ></ReceiverBubble>
             ) : (
-              <SenderBubble text={message.message}></SenderBubble>
+              <SenderBubble
+                content={message.content}
+                timestamp={message.timestamp}
+              ></SenderBubble>
             )
           )
         )}
@@ -142,9 +143,8 @@ const ConversationWIndow = () => {
             onEmojiSelect={handleEmojiSelect}
           />
         </div>
-        {/* <div className="text-white bg-blue-600 mx-auto px-2 text-lg">:D</div> */}
         <div
-          onClick={sendMessage}
+          onClick={handleSend}
           className="h-full flex items-center text-white rotate-45 pl-2 pe-3 text-xl hover:text-bgColor transition-all duration-300 cursor-pointer"
         >
           <i className="fa-solid fa-paper-plane"></i>

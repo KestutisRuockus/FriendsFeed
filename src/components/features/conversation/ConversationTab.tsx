@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ConversationsProps } from "./types";
 import ConversationWIndow from "./ConversationWIndow";
+import { auth } from "../../../firebase/firebaseConfig";
+import useChat from "../../../hooks/useChat";
 
 const ConversationTab = ({
   user,
@@ -11,14 +13,22 @@ const ConversationTab = ({
 }) => {
   const [isElementOpen, setIsElementOpen] = useState<boolean>(false);
 
-  const handleToggleElement = () => setIsElementOpen(!isElementOpen);
+  const { sendMessage, messages } = useChat(auth.currentUser!.uid, user.userId);
 
+  const handleToggleElement = () => setIsElementOpen(!isElementOpen);
   return (
     <div
       onClick={handleToggleElement}
       className="flex justify-between items-center bg-bgColor ps-2 w-[150px] cursor-pointer hover:bg-bgColorSecondary transition-colors duration-300"
     >
-      {isElementOpen && <ConversationWIndow />}
+      {isElementOpen && (
+        <ConversationWIndow
+          sendMessage={sendMessage}
+          senderId={auth.currentUser!.uid}
+          username={user.name}
+          messages={messages}
+        />
+      )}
       <p className="text-primary text-sm font-bold truncate overflow-hidden whitespace-nowrap">
         {user.name}
       </p>
