@@ -23,4 +23,6 @@ export type ConversationWindowProps = {
   messages: Messages[];
   updateMessage: UpdateMessage;
   deleteMessage: DeleteMessage;
+  isElementOpen: boolean;
+  setIsElementOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };

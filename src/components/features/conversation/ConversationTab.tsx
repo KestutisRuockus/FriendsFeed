@@ -22,19 +22,19 @@ const ConversationTab = ({
   return (
     <div
       onClick={handleToggleElement}
-      className="flex justify-between items-center bg-bgColor ps-2 w-[150px] cursor-pointer hover:bg-bgColorSecondary transition-colors duration-300"
+      className="flex justify-between items-center bg-bgColor ps-2 w-[120px] cursor-pointer hover:bg-bgColorSecondary transition-colors duration-300"
     >
-      {isElementOpen && (
-        <ConversationWIndow
-          sendMessage={sendMessage}
-          senderId={auth.currentUser!.uid}
-          username={user.name}
-          messages={messages}
-          updateMessage={updateMessage}
-          deleteMessage={deleteMessage}
-        />
-      )}
-      <p className="text-primary text-sm font-bold truncate overflow-hidden whitespace-nowrap">
+      <ConversationWIndow
+        sendMessage={sendMessage}
+        senderId={auth.currentUser!.uid}
+        username={user.name}
+        messages={messages}
+        updateMessage={updateMessage}
+        deleteMessage={deleteMessage}
+        isElementOpen={isElementOpen}
+        setIsElementOpen={setIsElementOpen}
+      />
+      <p className="text-primary text-xs sm:text-sm font-bold truncate overflow-hidden whitespace-nowrap">
         {user.name}
       </p>
       <p

@@ -36,20 +36,28 @@ const FriendsList = () => {
       className={`md:w-1/4 w-full px-2 py-4 flex flex-col bg-bgColorSecondary 
         ${
           collapsedFriendList ? "md:max-w-12" : "max-w-full"
-        } transition-all duration-200 relative`}
+        } transition-all duration-500 ease-in-out relative`}
     >
       <div
         className={`flex ${
-          collapsedFriendList
-            ? screenWidth < 768
-              ? "flex-row-reverse items-center gap-4"
-              : "flex-col gap-4"
-            : "justify-between"
-        }`}
+          screenWidth < 768
+            ? collapsedFriendList
+              ? "justify-end"
+              : "justify-between"
+            : collapsedFriendList
+            ? "flex-col-reverse"
+            : "flex-row-reverse justify-end"
+        } } gap-4`}
       >
-        {!collapsedFriendList && (
-          <h1 className="font-bold text-xl text-primary">Friends List</h1>
-        )}
+        <h1
+          className={`font-bold text-xl text-primary ${
+            collapsedFriendList && screenWidth > 768
+              ? "rotate-90 text-nowrap"
+              : "rotate-0"
+          } transition-all duration-1000 ease-in-out`}
+        >
+          Friends List
+        </h1>
 
         <i
           onClick={handleCollapseBtn}
@@ -58,46 +66,44 @@ const FriendsList = () => {
               ? "fa-up-right-and-down-left-from-center"
               : "fa-down-left-and-up-right-to-center"
           } 
-          font-bold text-xl text-primary cursor-pointer hover:opacity-50 transition-opacity duration-300`}
+          font-bold text-xl text-primary cursor-pointer hover:opacity-50 transition-opacity duration-1000 ease-in-out`}
         />
-
-        {collapsedFriendList && (
-          <h1
-            className={`font-bold text-xl text-primary ${
-              screenWidth >= 768 ? "rotate-90" : ""
-            } text-nowrap`}
-          >
-            Friends List
-          </h1>
-        )}
       </div>
-      {!collapsedFriendList && (
-        <>
-          <div className="flex items-center border-2 border-primary rounded-lg overflow-hidden my-2">
-            <input
-              className="px-2 w-full outline-none"
-              type="text"
-              placeholder="Search Friend..."
+      <div
+        className={`${
+          screenWidth < 768
+            ? collapsedFriendList
+              ? "h-0"
+              : "h-[300px]"
+            : collapsedFriendList
+            ? "w-0"
+            : "w-full"
+        } overflow-hidden transition-all duration-1000`}
+      >
+        <div className="flex items-center border-2 border-primary rounded-lg overflow-hidden my-2">
+          <input
+            className="px-2 w-full outline-none"
+            type="text"
+            placeholder="Search Friend..."
+          />
+          <button className="px-3 h-full bg-primary flex items-center justify-center text-white hover:bg-hover hover:text-primary transition-colors duration-300 ease-in-out">
+            <i className="p-1 fa-solid fa-magnifying-glass"></i>
+          </button>
+        </div>
+        <div
+          className={`${
+            screenWidth < 768 ? "h-[300px]" : "h-[90vh]"
+          } overflow-hidden overflow-y-scroll`}
+        >
+          {users.map((user) => (
+            <Friend
+              key={user.userId}
+              user={user}
+              onSelectUser={addToOpenConversations}
             />
-            <button className="px-3 h-full bg-primary flex items-center justify-center text-white hover:bg-hover hover:text-primary transition-colors duration-300 ease-in-out">
-              <i className="p-1 fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-          <div
-            className={`${
-              screenWidth < 768 ? "h-[300px]" : "h-[90vh]"
-            } overflow-hidden overflow-y-scroll`}
-          >
-            {users.map((user) => (
-              <Friend
-                key={user.userId}
-                user={user}
-                onSelectUser={addToOpenConversations}
-              />
-            ))}
-          </div>
-        </>
-      )}
+          ))}
+        </div>
+      </div>
       {openConversations.length > 0 && (
         <ConversationManager
           activeConversations={openConversations}

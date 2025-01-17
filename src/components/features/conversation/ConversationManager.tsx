@@ -21,9 +21,9 @@ const ConversationManager = ({
 
   const calculateVisibleTabs = () => {
     const screenWidth = window.innerWidth;
-    const conversationTabWidth = 170;
-    const gapBetweenConversationsTabs = 16;
-    const moreButtonWidth = 60;
+    const conversationTabWidth = 130;
+    const gapBetweenConversationsTabs = 12;
+    const moreButtonWidth = 50;
 
     const countOfVisibleTabs = Math.floor(
       (screenWidth - moreButtonWidth) /
@@ -64,7 +64,7 @@ const ConversationManager = ({
   }, [activeConversations]);
 
   return (
-    <div className="fixed bottom-0 right-0 w-fit flex flex-nowrap gap-4 items-center justify-end px-6 h-10 bg-bgColorExtra rounded-t-lg z-50">
+    <div className="fixed bottom-0 right-0 w-fit flex flex-nowrap gap-4 items-center justify-end px-4 h-10 bg-bgColorExtra rounded-t-lg z-50">
       {visibleConversations.map((user) => (
         <ConversationTab
           key={user.userId}
@@ -87,7 +87,10 @@ const ConversationManager = ({
               />
             ))}
           </div>
-          <button onClick={handleMoreButton} className="w-[60px] bg-white">
+          <button
+            onClick={handleMoreButton}
+            className="w-[50px] text-xs sm:text-sm py-[0.2rem] bg-white rounded-lg"
+          >
             {isOveflowConversationOpen ? "Close" : " More..."}
           </button>
         </div>

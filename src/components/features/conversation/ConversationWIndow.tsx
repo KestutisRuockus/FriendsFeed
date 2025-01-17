@@ -12,6 +12,8 @@ const ConversationWIndow = ({
   messages,
   updateMessage,
   deleteMessage,
+  isElementOpen,
+  setIsElementOpen,
 }: ConversationWindowProps) => {
   const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
   const [messageInput, setMessageInput] = useState<string>("");
@@ -32,7 +34,7 @@ const ConversationWIndow = ({
       <p className="text-xs text-slate-500">
         {timestamp ? timestamp.toLocaleString() : ""}
       </p>
-      <div className="text-sm">{content}</div>
+      <div className="text-sm break-words">{content}</div>
     </div>
   );
 
@@ -46,22 +48,24 @@ const ConversationWIndow = ({
     messageId: string;
   }) => (
     <div className="bg-bgColor text-primar border-2 border-bgColorExtra w-fit max-w-[67%] ps-2 pe-0 py-1 mb-4 ml-auto rounded-t-xl rounded-bl-xl">
-      <div className="flex justify-center items-center gap-1 pr-1">
+      <div className="flex justify-between items-center gap-1 pr-1">
         <p className="text-xs text-slate-500 me-4">
           {timestamp ? timestamp.toLocaleString() : ""}
         </p>
-        <i
-          onClick={() => deleteMessage(messageId)}
-          className="fa-solid fa-trash-can text-xs text-red-600 cursor-pointer 
-                                  hover:opacity-70 transition-opacity duration-300"
-        ></i>
-        <i
-          onClick={() => editMessage(content, messageId)}
-          className="fa-solid fa-pen text-xs text-green-600 cursor-pointer
-                                  hover:opacity-70 transition-opacity duration-300"
-        ></i>
+        <div className="flex justify-center items-center gap-2">
+          <i
+            onClick={() => deleteMessage(messageId)}
+            className="fa-solid fa-trash-can text-xs text-red-600 cursor-pointer 
+          hover:opacity-70 transition-opacity duration-300"
+          ></i>
+          <i
+            onClick={() => editMessage(content, messageId)}
+            className="fa-solid fa-pen text-xs text-green-600 cursor-pointer
+          hover:opacity-70 transition-opacity duration-300"
+          ></i>
+        </div>
       </div>
-      <div className="text-sm">{content}</div>
+      <div className="text-sm break-words">{content}</div>
     </div>
   );
 
@@ -80,7 +84,11 @@ const ConversationWIndow = ({
   };
 
   const handleEmojiSelect = (emoji: string) => {
-    setPreviousMessageContent(messageInput + emoji);
+    setMessageInput(messageInput + emoji);
+  };
+
+  const openEmojis = () => {
+    setOpenEmojiPicker(!openEmojiPicker);
   };
 
   const handleMessageInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +116,7 @@ const ConversationWIndow = ({
     } else {
       await sendMessage(messageInput, senderId);
     }
-
+    setOpenEmojiPicker(false);
     setMessageInput("");
   };
 
@@ -116,6 +124,10 @@ const ConversationWIndow = ({
     if (e.key === "Enter") {
       sendMessage(messageInput, senderId);
     }
+  };
+
+  const collapseConversationWindow = () => {
+    setIsElementOpen(false);
   };
 
   useEffect(() => {
@@ -131,12 +143,21 @@ const ConversationWIndow = ({
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="absolute bottom-9 right-6 bg-secondary max-w-[90vw] w-[30rem] h-[30rem] border-2 border-bgColorExtra hover:opacity-100 rounded-t-lg rounded-bl-md cursor-default"
+      className={`absolute bottom-10 bg-secondary max-w-[90vw] ${
+        isElementOpen
+          ? "w-[30rem] h-[30rem] right-2"
+          : "w-[0rem] h-[0rem] -right-2"
+      } border-2 border-bgColorExtra hover:opacity-100 rounded-t-lg rounded-bl-md cursor-default transition-all duration-300`}
     >
       <div className="flex items-center justify-between bg-bgColorExtra text-bgColorSecondary px-2 py-1">
         <h2 className="font-bold">{username}</h2>
         <div className="flex gap-2">
-          <p>_</p>
+          <p
+            onClick={collapseConversationWindow}
+            className="font-bold cursor-pointer hover:text-bgColor transition-all duration-300"
+          >
+            __
+          </p>
           <p>x</p>
         </div>
       </div>
@@ -180,7 +201,7 @@ const ConversationWIndow = ({
           </div>
         )}
       </div>
-      <div className="flex items-center h-[9%] w-full rounded-bl-lg bg-bgColorExtra">
+      <div className="flex items-center h-[9%] w-full pb-[1px] rounded-bl-lg bg-bgColorExtra relative">
         <input
           onChange={handleMessageInput}
           onKeyDown={handleEnterKeyDown}
@@ -189,13 +210,21 @@ const ConversationWIndow = ({
           placeholder="Aa..."
           className="h-[95%] px-2 rounded-bl-md w-full outline-none rounded-r-lg"
         />
-        <div className="mt-[2px] ml-2">
-          <EmojiPickerComponent
-            open={openEmojiPicker}
-            setOpen={setOpenEmojiPicker}
-            onEmojiSelect={handleEmojiSelect}
-          />
+        <div
+          onClick={openEmojis}
+          className="flex justify-center items-center text-2xl text-white ml-2 hover:text-bgColor transition-all duration-300 cursor-pointer"
+        >
+          <i className="fa-regular fa-face-smile-wink"></i>
         </div>
+        {openEmojiPicker && (
+          <div className="absolute bottom-11 left-0">
+            <EmojiPickerComponent
+              open={openEmojiPicker}
+              setOpen={setOpenEmojiPicker}
+              onEmojiSelect={handleEmojiSelect}
+            />
+          </div>
+        )}
         <div
           onClick={handleSend}
           className="h-full flex items-center text-white rotate-45 pl-2 pe-3 text-xl hover:text-bgColor transition-all duration-300 cursor-pointer"
