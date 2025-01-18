@@ -9,6 +9,8 @@ const FriendsList = () => {
   const [collapsedFriendList, setCollapsedFriendList] =
     useState<boolean>(false);
   const [openConversations, setOpenConversations] = useState<FriendProps[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<FriendProps[]>([]);
+  const [searchInput, setSearchInput] = useState<string>("");
 
   const screenWidth = useScreenWidth();
   const { users, fetchUsers } = useFetchUsers();
@@ -27,9 +29,23 @@ const FriendsList = () => {
     );
   };
 
+  const handleSearchInputValue = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchInput(e.target.value);
+
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  useEffect(() => {
+    if (searchInput.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter((user) =>
+        user.name.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchInput, users]);
 
   return (
     <aside
@@ -82,6 +98,7 @@ const FriendsList = () => {
       >
         <div className="flex items-center border-2 border-primary rounded-lg overflow-hidden my-2">
           <input
+            onChange={handleSearchInputValue}
             className="px-2 w-full outline-none"
             type="text"
             placeholder="Search Friend..."
@@ -95,7 +112,7 @@ const FriendsList = () => {
             screenWidth < 768 ? "h-[300px]" : "h-[90vh]"
           } overflow-hidden overflow-y-scroll`}
         >
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <Friend
               key={user.userId}
               user={user}

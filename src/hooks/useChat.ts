@@ -68,7 +68,6 @@ const useChat = (userId1: string, userId2: string) => {
       const messageRef = doc(db, "chats", chatData!.id, "messages", messageId);
       await updateDoc(messageRef, {
         content: updatedMessageContent,
-        timestamp: serverTimestamp(),
       });
 
       setMessages((prevMessages) =>

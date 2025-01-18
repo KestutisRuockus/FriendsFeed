@@ -14,6 +14,8 @@ const ConversationWIndow = ({
   deleteMessage,
   isElementOpen,
   setIsElementOpen,
+  removeActiveConversation,
+  conversationId,
 }: ConversationWindowProps) => {
   const [openEmojiPicker, setOpenEmojiPicker] = useState<boolean>(false);
   const [messageInput, setMessageInput] = useState<string>("");
@@ -70,7 +72,6 @@ const ConversationWIndow = ({
   );
 
   const editMessage = (content: string, messageId: string) => {
-    console.log("editMessage");
     setEditingMessageId(messageId);
     setPreviousMessageContent(content);
     setMessageInput(content);
@@ -98,10 +99,12 @@ const ConversationWIndow = ({
   const scrollToConversationWindowBottom = () => {
     const container = document.getElementById("message-container");
     if (container) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: "smooth",
-      });
+      setTimeout(() => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
     }
   };
 
@@ -158,7 +161,12 @@ const ConversationWIndow = ({
           >
             __
           </p>
-          <p>x</p>
+          <p
+            onClick={() => removeActiveConversation(conversationId)}
+            className="font-bold cursor-pointer hover:text-bgColor transition-all duration-300"
+          >
+            x
+          </p>
         </div>
       </div>
       <div

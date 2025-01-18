@@ -16,6 +16,8 @@ type UpdateMessage = (updatedMessageContent: string, messageId: string) => void;
 
 type DeleteMessage = (messageId: string) => void;
 
+type RemoveActiveConversationProps = (messageId: string) => void;
+
 export type ConversationWindowProps = {
   sendMessage: SendMessage;
   senderId: string;
@@ -25,4 +27,6 @@ export type ConversationWindowProps = {
   deleteMessage: DeleteMessage;
   isElementOpen: boolean;
   setIsElementOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  removeActiveConversation: RemoveActiveConversationProps;
+  conversationId: string;
 };

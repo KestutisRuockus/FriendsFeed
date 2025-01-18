@@ -18,6 +18,9 @@ const ConversationManager = ({
   >([]);
   const [isOveflowConversationOpen, setIsOveflowConversationOpen] =
     useState<boolean>(false);
+  const [openConversationId, setOpenConversationId] = useState<string | null>(
+    null
+  );
 
   const calculateVisibleTabs = () => {
     const screenWidth = window.innerWidth;
@@ -70,6 +73,8 @@ const ConversationManager = ({
           key={user.userId}
           user={user}
           removeActiveConversation={removeActiveConversation}
+          openConversationId={openConversationId}
+          setOpenConversationId={setOpenConversationId}
         />
       ))}
       {overflowConversations.length > 0 && (
@@ -81,9 +86,11 @@ const ConversationManager = ({
           >
             {overflowConversations.map((user) => (
               <OverflowConversationTab
+                key={user.userId}
                 user={user}
                 removeActiveConversation={removeActiveConversation}
                 swapOverflowWithVisible={swapOverflowWithVisible}
+                setOpenConversationId={setOpenConversationId}
               />
             ))}
           </div>
